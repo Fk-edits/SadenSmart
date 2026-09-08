@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Seden Adea – Interactive Learning</title>
+
+  <script>
+    (function(){
+      var theme = localStorage.getItem('sass_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="theme.css">
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; padding: 24px;
+      display: flex; flex-direction: column; align-items: center;
+      transition: background 0.3s ease, color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .header {
+      width: 100%; max-width: 500px;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px;
+    }
+    .header h1 { font-size: 1.5rem; font-weight: 800; color: var(--text); display: flex; gap: 10px; align-items: center; }
+    .header h1 i { color: var(--blue); }
+    .btn-back {
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
+      padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: all 0.2s ease;
+    }
+    .btn-back:hover { background: var(--input-bg); color: var(--text); border-color: var(--blue); }
+
+    .tabs {
+      display: flex; gap: 6px; margin-bottom: 24px; width: 100%; max-width: 500px;
+      background: var(--input-bg); border-radius: 10px; padding: 6px; border: 1px solid var(--border);
+    }
+    .tab {
+      flex: 1; padding: 10px 0; border-radius: 8px; background: transparent; border: none;
+      color: var(--text2); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s ease;
+    }
+    .tab.active { background: var(--surface); color: var(--blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+
+    .game-container {
+      width: 100%; max-width: 500px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px 24px; box-shadow: var(--shadow); text-align: center;
+    }
+    .game-container h3 { font-size: 1.2rem; margin-bottom: 16px; color: var(--text); }
+    .hidden { display: none !important; }
+
+    /* Tic-Tac-Toe */
+    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 220px; margin: 0 auto 20px; }
+    .cell {
+      aspect-ratio: 1; background: var(--input-bg); border: 1px solid var(--border);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; font-weight: bold; cursor: pointer; transition: all 0.2s ease; color: var(--text);
+    }
+    .cell:hover { border-color: var(--blue); background: var(--surface); }
+    .cell.X { color: var(--blue); }
+    .cell.O { color: var(--purple); }
+    .turn-indicator { margin-bottom: 16px; font-weight: 500; color: var(--text2); }
+
+    /* Car Dodger */
+    .road {
+      position: relative; width: 100%; height: 350px; background: #1a1a2e; margin: 0 auto 16px;
+      border: 2px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; justify-content: center;
+    }
+    .road::before {
+      content: ''; position: absolute; top: 0; left: 50%; width: 4px; height: 100%;
+      background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.2) 0, rgba(255,255,255,0.2) 20px, transparent 20px, transparent 40px);
+      transform: translateX(-50%);
+    }
+    .car {
+      position: absolute; bottom: 20px; width: 44px; height: 64px; background: var(--blue);
+      border-radius: 8px; transition: left 0.08s ease; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; font-size: 0.65rem; color: #fff; font-weight: 700; z-index: 10;
+    }
+    .car::before {
+      content: ''; position: absolute; top: 10px; width: 34px; height: 16px; background: rgba(0,0,0,0.5); border-radius: 4px;
+    }
+    .obstacle { position: absolute; width: 44px; height: 64px; background: var(--red); border-radius: 8px; animation: fall linear forwards; }
+    @keyframes fall { from { top: -70px; } to { top: 400px; } }
+    
+    .lives-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+    .lives-bar i { color: var(--red); font-size: 1.1rem; }
+    .car-hud { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-weight: 600; font-size: 0.95rem; color: var(--text); }
+    .car-controls { display: flex; justify-content: center; gap: 16px; margin-top: 16px; }
+    .car-btn {
+      background: var(--input-bg); border: 1px solid var(--border); color: var(--text); border-radius: 12px;
+      padding: 16px 32px; font-size: 1.2rem; cursor: pointer; transition: all 0.2s ease;
+    }
+    .car-btn:active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+    /* Math Game */
+    .difficulty-selector { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+    .diff-btn {
+      padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--input-bg); color: var(--text2); cursor: pointer; font-weight: 500; transition: all 0.2s ease;
+    }
+    .diff-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .math-question { font-size: 2.2rem; margin: 24px 0; font-weight: 800; color: var(--text); }
+    .math-input {
+      width: 140px; padding: 12px; border-radius: 10px; border: 2px solid var(--border);
+      background: var(--input-bg); color: var(--text); font-size: 1.2rem; text-align: center; outline: none; transition: border-color 0.2s;
+    }
+    .math-input:focus { border-color: var(--blue); }
+    .timer { font-size: 1.2rem; font-weight: 700; color: var(--blue); }
+    
+    .btn-action {
+      background: var(--blue); color: #fff; border: none; border-radius: 8px;
+      padding: 10px 24px; font-weight: 600; cursor: pointer; transition: opacity 0.2s ease; font-size: 0.95rem; margin-top: 16px;
+    }
+    .btn-action:hover { opacity: 0.9; }
+    .btn-reset { background: var(--input-bg); border: 1px solid var(--border); color: var(--text); }
+    .btn-reset:hover { background: var(--surface); border-color: var(--text2); }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1><i class="fa-solid fa-gamepad"></i> Learning Games</h1>
+    <a href="index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Home</a>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-game="tictactoe">Tic‑Tac‑Toe</button>
+    <button class="tab" data-game="car">Dodger</button>
+    <button class="tab" data-game="math">Math</button>
+  </div>
+
+  <!-- Tic‑Tac‑Toe -->
+  <div class="game-container" id="game-tictactoe">
+    <h3>Logic Challenge</h3>
+    <p class="turn-indicator" id="tictactoe-turn">Your turn (X)</p>
+    <div class="board" id="board"></div>
+    <button class="btn-action btn-reset" id="tictactoe-reset">Restart Game</button>
+  </div>
+
+  <!-- Car Dodger -->
+  <div class="game-container hidden" id="game-car">
+    <h3>Focus & Reflex</h3>
+    <div class="car-hud">
+      <span>Score: <strong id="car-score" style="color:var(--blue);">0</strong></span>
+      <span>Best: <strong id="car-best">0</strong></span>
+    </div>
+    <div class="lives-bar" id="lives-bar">
+      <i class="fa-solid fa-heart"></i><i class="fa-solid fa-heart"></i><i class="fa-solid fa-heart"></i>
+    </div>
+    <div class="road" id="road">
+      <div class="car" id="car">SASS</div>
+    </div>
+    <div class="car-controls">
+      <button class="car-btn" id="car-left"><i class="fa-solid fa-arrow-left"></i></button>
+      <button class="car-btn" id="car-right"><i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+    <button class="btn-action" id="car-start" style="width:100%;">Start Driving</button>
+    <button class="btn-action btn-reset hidden" id="car-reset" style="width:100%;">Try Again</button>
+    <div id="car-gameover-msg" class="hidden" style="margin-top:16px; font-weight:600; color:var(--text);"></div>
+  </div>
+
+  <!-- Math Challenge -->
+  <div class="game-container hidden" id="game-math">
+    <h3>Speed Math</h3>
+    <div class="difficulty-selector" id="diff-selector">
+      <button class="diff-btn active" data-diff="easy">Easy</button>
+      <button class="diff-btn" data-diff="medium">Medium</button>
+      <button class="diff-btn" data-diff="hard">Hard</button>
+    </div>
+    <p style="color:var(--text2); font-size:0.9rem;">Time left: <span class="timer" id="math-timer">30</span>s <span style="margin:0 12px;">|</span> Question: <strong id="math-qnum">1</strong>/10</p>
+    <div class="math-question" id="math-question">7 + 3</div>
+    <input type="number" class="math-input" id="math-answer" placeholder="?" autocomplete="off">
+    <br>
+    <button class="btn-action" id="math-submit">Submit Answer</button>
+    <p style="margin-top:16px; font-weight:600; color:var(--text);" id="math-score-display">Current Score: 0</p>
+    <button class="btn-action btn-reset" id="math-reset" style="width:100%;">Restart Quiz</button>
+  </div>
+
+  <script>
+    (function() {
+      // Tab switching
+      const tabs = document.querySelectorAll('.tab');
+      const games = {
+        tictactoe: document.getElementById('game-tictactoe'),
+        car: document.getElementById('game-car'),
+        math: document.getElementById('game-math')
+      };
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          const gameId = tab.dataset.game;
+          for (let id in games) games[id].classList.add('hidden');
+          games[gameId].classList.remove('hidden');
+          if (gameId !== 'car') stopCarGame();
+        });
+      });
+
+      // TIC‑TAC‑TOE
+      (function() {
+        const boardEl = document.getElementById('board');
+        const turnEl = document.getElementById('tictactoe-turn');
+        const resetBtn = document.getElementById('tictactoe-reset');
+        let board = ['','','','','','','','',''];
+        const player = 'X', bot = 'O';
+        let gameActive = true; let botTurn = false;
+
+        function renderBoard() {
+          boardEl.innerHTML = '';
+          board.forEach((val, idx) => {
+            const cell = document.createElement('div');
+            cell.className = 'cell' + (val ? ` ${val}` : '');
+            cell.textContent = val;
+            cell.addEventListener('click', () => { if (gameActive && !botTurn && board[idx] === '') makeMove(idx, player); });
+            boardEl.appendChild(cell);
+          });
+          if (gameActive) turnEl.textContent = botTurn ? "Bot's turn (O)" : "Your turn (X)";
+        }
+
+        function checkWin(boardArr) {
+          const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+          for (let w of wins) {
+            const [a,b,c] = w;
+            if (boardArr[a] && boardArr[a] === boardArr[b] && boardArr[a] === boardArr[c]) return boardArr[a];
+          }
+          return boardArr.includes('') ? null : 'draw';
+        }
+
+        function minimax(newBoard, isMaximizing) {
+          const winner = checkWin(newBoard);
+          if (winner === bot) return 10;
+          if (winner === player) return -10;
+          if (winner === 'draw') return 0;
+          if (isMaximizing) {
+            let best = -Infinity;
+            for (let i=0; i<9; i++) { if(newBoard[i]===''){ newBoard[i]=bot; best = Math.max(best, minimax(newBoard, false)); newBoard[i]=''; } }
+            return best;
+          } else {
+            let best = Infinity;
+            for (let i=0; i<9; i++) { if(newBoard[i]===''){ newBoard[i]=player; best = Math.min(best, minimax(newBoard, true)); newBoard[i]=''; } }
+            return best;
+          }
+        }
+
+        function botMove() {
+          if (!gameActive || !botTurn) return;
+          let bestScore = -Infinity, bestIdx = -1;
+          for (let i=0; i<9; i++) {
+            if (board[i] === '') {
+              board[i] = bot; let score = minimax(board, false); board[i] = '';
+              if (score > bestScore) { bestScore = score; bestIdx = i; }
+            }
+          }
+          if (bestIdx !== -1) makeMove(bestIdx, bot);
+        }
+
+        function makeMove(idx, symbol) {
+          board[idx] = symbol; renderBoard();
+          const winner = checkWin(board);
+          if (winner === 'draw') { turnEl.textContent = "It's a draw!"; gameActive = false; } 
+          else if (winner) { turnEl.textContent = (winner === player ? "You win!" : "Bot wins!"); gameActive = false; } 
+          else { botTurn = !botTurn; turnEl.textContent = botTurn ? "Bot's turn (O)" : "Your turn (X)"; if (botTurn && gameActive) setTimeout(botMove, 300); }
+        }
+
+        resetBtn.addEventListener('click', () => { board = ['','','','','','','','','']; gameActive = true; botTurn = false; renderBoard(); });
+        renderBoard();
+      })();
+
+      // CAR DODGER
+      window.stopCarGame = function() {};
+      (function() {
+        const road = document.getElementById('road'); const car = document.getElementById('car');
+        const scoreEl = document.getElementById('car-score'); const bestEl = document.getElementById('car-best');
+        const startBtn = document.getElementById('car-start'); const resetBtn = document.getElementById('car-reset');
+        const leftBtn = document.getElementById('car-left'); const rightBtn = document.getElementById('car-right');
+        const livesBar = document.getElementById('lives-bar'); const gameoverMsg = document.getElementById('car-gameover-msg');
+
+        let score = 0, best = localStorage.getItem('car_best') || 0, gameRunning = false, obstacles = [], carX = 0, frameId, obstacleInterval, lives = 3, difficulty = 1;
+        const CAR_WIDTH = 44; bestEl.textContent = best;
+
+        function updateRoadWidth() { return road.clientWidth; }
+
+        function reset() {
+          score = 0; scoreEl.textContent = '0'; obstacles.forEach(o => o.remove()); obstacles = []; lives = 3; difficulty = 1; updateLivesDisplay(); gameRunning = false;
+          clearInterval(obstacleInterval); cancelAnimationFrame(frameId);
+          startBtn.classList.remove('hidden'); resetBtn.classList.add('hidden'); gameoverMsg.classList.add('hidden');
+          const roadWidth = updateRoadWidth(); carX = (roadWidth - CAR_WIDTH) / 2; car.style.left = carX + 'px';
+        }
+
+        function updateLivesDisplay() {
+          livesBar.innerHTML = '';
+          for (let i=0; i<3; i++) {
+            const heart = document.createElement('i'); heart.className = 'fa-solid fa-heart';
+            if (i >= lives) heart.style.opacity = '0.2';
+            livesBar.appendChild(heart);
+          }
+        }
+
+        window.stopCarGame = function() { if (gameRunning) reset(); };
+
+        function createObstacle() {
+          if (!gameRunning) return;
+          const roadWidth = updateRoadWidth();
+          const obs = document.createElement('div'); obs.className = 'obstacle';
+          const w = 30 + Math.random() * 20; const h = 50 + Math.random() * 20;
+          obs.style.width = w + 'px'; obs.style.height = h + 'px';
+          obs.style.left = Math.random() * (roadWidth - w) + 'px';
+          obs.style.background = `hsl(${Math.random() * 360}, 80%, 50%)`;
+          obs.style.animationDuration = (1.6 - difficulty * 0.08) + 's';
+          obs.addEventListener('animationend', () => {
+            if (obs.parentNode) obs.remove();
+            obstacles = obstacles.filter(o => o !== obs);
+            if (gameRunning) {
+              score++; scoreEl.textContent = score;
+              if (score % 5 === 0 && difficulty < 8) { difficulty++; clearInterval(obstacleInterval); obstacleInterval = setInterval(createObstacle, 1500 - difficulty * 100); }
+            }
+          });
+          road.appendChild(obs); obstacles.push(obs);
+        }
+
+        function checkCollision() {
+          const carRect = car.getBoundingClientRect();
+          for (let obs of obstacles) {
+            const obsRect = obs.getBoundingClientRect();
+            if (carRect.left < obsRect.right - 5 && carRect.right > obsRect.left + 5 && carRect.top < obsRect.bottom - 5 && carRect.bottom > obsRect.top + 5) {
+              obs.remove(); obstacles = obstacles.filter(o => o !== obs); lives--; updateLivesDisplay();
+              if (lives <= 0) { gameOver(); return; }
+            }
+          }
+        }
+
+        function gameOver() {
+          gameRunning = false; clearInterval(obstacleInterval); cancelAnimationFrame(frameId);
+          if (score > best) { best = score; localStorage.setItem('car_best', best); bestEl.textContent = best; }
+          startBtn.classList.add('hidden'); resetBtn.classList.remove('hidden'); gameoverMsg.classList.remove('hidden');
+          gameoverMsg.innerHTML = `💥 Game Over! Final Score: <strong>${score}</strong>`;
+        }
+
+        function gameLoop() { if (!gameRunning) return; checkCollision(); frameId = requestAnimationFrame(gameLoop); }
+
+        function startGame() { reset(); gameRunning = true; startBtn.classList.add('hidden'); resetBtn.classList.add('hidden'); gameoverMsg.classList.add('hidden'); obstacleInterval = setInterval(createObstacle, 1500); gameLoop(); }
+
+        startBtn.addEventListener('click', startGame); resetBtn.addEventListener('click', startGame);
+
+        function moveCar(dx) {
+          if (!gameRunning) return;
+          const roadWidth = updateRoadWidth();
+          carX = Math.max(0, Math.min(roadWidth - CAR_WIDTH, carX + dx)); car.style.left = carX + 'px';
+        }
+
+        leftBtn.addEventListener('mousedown', () => moveCar(-35)); rightBtn.addEventListener('mousedown', () => moveCar(35));
+        leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveCar(-35); }); rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveCar(35); });
+        document.addEventListener('keydown', (e) => { if (!gameRunning) return; if (e.key === 'ArrowLeft') moveCar(-35); else if (e.key === 'ArrowRight') moveCar(35); });
+
+        window.addEventListener('load', () => { const roadWidth = updateRoadWidth(); carX = (roadWidth - CAR_WIDTH) / 2; car.style.left = carX + 'px'; });
+      })();
+
+      // MATH CHALLENGE
+      (function() {
+        const questionEl = document.getElementById('math-question'), answerInput = document.getElementById('math-answer'), submitBtn = document.getElementById('math-submit');
+        const timerEl = document.getElementById('math-timer'), scoreEl = document.getElementById('math-score-display'), qnumEl = document.getElementById('math-qnum');
+        const resetBtn = document.getElementById('math-reset'), diffButtons = document.querySelectorAll('.diff-btn');
+
+        let currentAnswer, score = 0, questionsDone = 0, totalQuestions = 10, timeLeft = 30, timerInterval, gameActive = false, difficulty = 'easy';
+
+        const settings = {
+          easy: { time: 45, ops: ['+','-'], maxA: 20, maxB: 20, min: 1 },
+          medium: { time: 35, ops: ['+','-','×'], maxA: 15, maxB: 15, min: 2 },
+          hard: { time: 25, ops: ['+','-','×','÷'], maxA: 100, maxB: 20, min: 3 }
+        };
+
+        function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        function generateQuestion() {
+          const s = settings[difficulty]; const op = s.ops[Math.floor(Math.random() * s.ops.length)]; let a, b;
+          if (op === '+') { a = rand(s.min, s.maxA); b = rand(s.min, s.maxB); currentAnswer = a + b; }
+          else if (op === '-') { a = rand(s.min + 1, s.maxA); b = rand(s.min, a); currentAnswer = a - b; }
+          else if (op === '×') { a = rand(s.min, s.maxA); b = rand(s.min, s.maxB); currentAnswer = a * b; }
+          else if (op === '÷') { b = rand(s.min, s.maxB); a = b * rand(1, Math.floor(s.maxA / b)); currentAnswer = a / b; }
+          questionEl.textContent = `${a} ${op} ${b} = ?`;
+        }
+
+        function endGame() {
+          gameActive = false; clearInterval(timerInterval); answerInput.disabled = true; submitBtn.disabled = true;
+          alert(`Quiz complete! You scored ${score} out of ${totalQuestions}.`);
+        }
+
+        function resetMath() {
+          clearInterval(timerInterval); const s = settings[difficulty]; timeLeft = s.time; timerEl.textContent = timeLeft;
+          score = 0; questionsDone = 0; qnumEl.textContent = '1'; scoreEl.textContent = 'Current Score: 0';
+          answerInput.value = ''; answerInput.disabled = false; submitBtn.disabled = false; gameActive = true;
+          generateQuestion();
+          timerInterval = setInterval(() => { timeLeft--; timerEl.textContent = timeLeft; if (timeLeft <= 0) endGame(); }, 1000);
+        }
+
+        diffButtons.forEach(btn => {
+          btn.addEventListener('click', () => { diffButtons.forEach(b => b.classList.remove('active')); btn.classList.add('active'); difficulty = btn.dataset.diff; resetMath(); });
+        });
+
+        submitBtn.addEventListener('click', () => {
+          if (!gameActive) return;
+          const userAnswer = parseFloat(answerInput.value); if (isNaN(userAnswer)) return;
+          if (Math.abs(userAnswer - currentAnswer) < 0.001) score++;
+          questionsDone++;
+          if (questionsDone >= totalQuestions) { scoreEl.textContent = 'Final Score: ' + score; endGame(); return; }
+          scoreEl.textContent = 'Current Score: ' + score; qnumEl.textContent = questionsDone + 1; answerInput.value = ''; generateQuestion();
+        });
+
+        answerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') submitBtn.click(); });
+        resetBtn.addEventListener('click', resetMath); resetMath();
+      })();
+    })();
+  </script>
+</body>
+</html>

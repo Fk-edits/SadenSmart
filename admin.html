@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Seden Adea – Admin Dashboard</title>
+
+  <script>
+    (function(){
+      var theme = localStorage.getItem('sass_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <div id="loader"><div class="spinner-ring"></div></div>
+
+  <header class="admin-header">
+    <div class="header-brand"><i class="fa-solid fa-shield-halved"></i> Seden Adea Admin</div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+      <button id="logout-btn" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span></button>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <nav>
+        <a data-section="dashboard" class="sidebar-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+        <a data-section="statistics" class="sidebar-link"><i class="fa-solid fa-chart-bar"></i> Statistics</a>
+        <a data-section="teachers" class="sidebar-link"><i class="fa-solid fa-chalkboard-user"></i> Teachers</a>
+        <a data-section="students" class="sidebar-link"><i class="fa-solid fa-graduation-cap"></i> Students</a>
+        <a data-section="groups" class="sidebar-link"><i class="fa-solid fa-door-open"></i> Classes</a>
+        <a data-section="subjects" class="sidebar-link"><i class="fa-solid fa-book"></i> Subjects</a>
+        <a data-section="announcements" class="sidebar-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+        <a data-section="permissions" class="sidebar-link"><i class="fa-solid fa-user-shield"></i> Permissions</a>
+        <a data-section="settings" class="sidebar-link"><i class="fa-solid fa-gear"></i> Settings</a>
+      </nav>
+    </aside>
+
+    <main class="admin-main" id="admin-main">
+      <div class="loading-state">
+        <div class="spinner-ring"></div>
+        <p>Loading administration panel…</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Student Edit Modal -->
+  <div class="modal-overlay" id="student-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('student-modal')"><i class="fa-solid fa-xmark"></i></button>
+      <h3 style="margin-bottom: 16px; color: var(--text);">Edit Student Record</h3>
+      <div class="form-group"><label>Student ID (Read-only)</label><input type="text" id="edit-student-id" readonly style="opacity:0.7; cursor:not-allowed;"></div>
+      <div class="form-group"><label>Full Name</label><input type="text" id="edit-student-name"></div>
+      <div class="form-group"><label>Email Address</label><input type="email" id="edit-student-email"></div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <div class="form-group"><label>Grade</label><select id="edit-student-grade"><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select></div>
+        <div class="form-group"><label>Section</label><select id="edit-student-section"></select></div>
+      </div>
+      <button class="btn-primary" id="save-student-btn"><i class="fa-solid fa-save"></i> Save Changes</button>
+      <p class="msg" id="edit-student-msg"></p>
+    </div>
+  </div>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

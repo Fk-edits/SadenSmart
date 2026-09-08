@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Seden Adea – Leave Request</title>
+
+  <script>
+    (function(){
+      var theme = localStorage.getItem('sass_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="theme.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      transition: background 0.3s ease, color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
+    }
+    .permission-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--shadow);
+    }
+    .logo {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+      color: var(--text);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .logo i { color: var(--blue); font-size: 1.8rem; }
+    
+    .form-group { margin-bottom: 16px; }
+    label {
+      display: block; font-size: 0.85rem; color: var(--text2);
+      margin-bottom: 6px; font-weight: 500;
+    }
+    input, select, textarea {
+      width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--input-bg); color: var(--text); font-size: 0.95rem; outline: none;
+      transition: border-color 0.2s ease; font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--blue); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .btn-primary {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      background: var(--blue); color: #fff; font-weight: 600; font-size: 1rem;
+      cursor: pointer; transition: opacity 0.2s ease, transform 0.2s ease;
+      display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+    .msg { font-size: 0.9rem; margin-top: 16px; padding: 12px; border-radius: 8px; display: none; font-weight: 500; text-align: center; }
+    .msg.error { display: block; background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2); }
+    .msg.success { display: block; background: rgba(16, 185, 129, 0.1); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.2); }
+
+    .remaining {
+      font-size: 0.85rem; color: var(--text2); text-align: center;
+      margin: 16px 0; background: var(--bg); padding: 8px; border-radius: 8px; border: 1px solid var(--border);
+    }
+    
+    .loading-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 0; color: var(--text2); gap: 12px; text-align: center;
+    }
+    .spinner-ring {
+      width: 32px; height: 32px; border: 3px solid var(--border);
+      border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .back-link { text-align: center; margin-top: 24px; }
+    .back-link a {
+      color: var(--text2); text-decoration: none; font-size: 0.9rem;
+      display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s ease; font-weight: 500;
+    }
+    .back-link a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="permission-card">
+    <div class="logo"><i class="fa-solid fa-file-signature"></i> Leave Request</div>
+
+    <div id="loading-screen" class="loading-state">
+      <div class="spinner-ring"></div>
+      <p>Verifying student identity…</p>
+    </div>
+
+    <form id="permission-form" style="display: none;">
+      <p style="color:var(--text2); text-align:center; margin-bottom:20px; font-size:0.9rem;">Submit an official absence or leave request to the administration.</p>
+
+      <div class="form-group">
+        <label>Registered Full Name</label>
+        <input type="text" id="student-name" placeholder="Your full name" required>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label>Grade</label>
+          <select id="grade-select" required>
+            <option value="" disabled selected>Select</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Section</label>
+          <select id="section-select" required></select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Reason for Leave</label>
+        <textarea id="reason" placeholder="Briefly explain your reason..." required></textarea>
+      </div>
+
+      <div class="remaining" id="remaining-display">Calculating limits...</div>
+
+      <button type="submit" class="btn-primary" id="submit-btn">
+        <i class="fa-solid fa-paper-plane"></i> Submit to Admin
+      </button>
+
+      <p class="msg" id="form-message"></p>
+    </form>
+
+    <div class="back-link">
+      <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+    import { collection, addDoc, query, where, getDocs, serverTimestamp, getCountFromServer } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+    const $ = s => document.querySelector(s);
+
+    let sectionOptions = '<option value="" disabled selected>Select</option>';
+    for (let i = 65; i <= 90; i++) sectionOptions += `<option value="${String.fromCharCode(i)}">${String.fromCharCode(i)}</option>`;
+    $('#section-select').innerHTML = sectionOptions;
+
+    let currentUser = null;
+    const MAX_REQUESTS_PER_MONTH = 3;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        $('#loading-screen').innerHTML = '<i class="fa-solid fa-lock" style="font-size:2rem; color:var(--text2); margin-bottom:8px;"></i><p>Authentication Required.</p><a href="login.html" class="btn-primary" style="text-decoration:none; width:auto; padding:8px 20px; margin-top:12px;">Sign In</a>';
+        return;
+      }
+
+      currentUser = user;
+      $('#loading-screen').style.display = 'none';
+      $('#permission-form').style.display = 'block';
+
+      try {
+        const now = new Date();
+        // FIX: Use a Date object instead of a string for Firestore timestamp comparison
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        
+        const requestsQ = query(collection(db, "permissions"), where("uid", "==", user.uid), where("timestamp", ">=", startOfMonth));
+        const requestsSnap = await getCountFromServer(requestsQ);
+        
+        const requestCount = requestsSnap.data().count;
+        const remaining = MAX_REQUESTS_PER_MONTH - requestCount;
+        
+        $('#remaining-display').innerHTML = `You have <strong>${Math.max(remaining, 0)}</strong> request(s) remaining this month.`;
+
+        if (remaining <= 0) {
+          $('#submit-btn').disabled = true;
+          $('#form-message').textContent = 'Monthly limit reached. Please visit the office for emergency requests.';
+          $('#form-message').className = 'msg error';
+        }
+      } catch (err) {
+        $('#remaining-display').textContent = 'Unable to verify monthly limits.';
+      }
+    });
+
+    $('#permission-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msgEl = $('#form-message');
+      msgEl.className = 'msg';
+
+      if (!currentUser) return;
+
+      const name = $('#student-name').value.trim();
+      const grade = $('#grade-select').value;
+      const section = $('#section-select').value;
+      const reason = $('#reason').value.trim();
+
+      const btn = $('#submit-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+      try {
+        await addDoc(collection(db, "permissions"), {
+          uid: currentUser.uid, studentName: name, grade, section, reason, status: 'pending', timestamp: serverTimestamp()
+        });
+
+        msgEl.textContent = 'Leave request submitted successfully!';
+        msgEl.className = 'msg success';
+        $('#permission-form').reset();
+
+        // Refresh counter – use Date object
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const requestsSnap = await getCountFromServer(query(collection(db, "permissions"), where("uid", "==", currentUser.uid), where("timestamp", ">=", startOfMonth)));
+        const remaining = MAX_REQUESTS_PER_MONTH - requestsSnap.data().count;
+        $('#remaining-display').innerHTML = `You have <strong>${Math.max(remaining, 0)}</strong> request(s) remaining this month.`;
+        if (remaining <= 0) btn.disabled = true;
+
+      } catch (err) {
+        msgEl.textContent = 'Failed to submit request. ' + err.message;
+        msgEl.className = 'msg error';
+      } finally {
+        if (!btn.disabled || msgEl.classList.contains('error')) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit to Admin';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

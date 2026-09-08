@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Seden Adea – Smart Academic School System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+  <div class="scroll-progress"></div>
+
+  <!-- Loader -->
+  <div id="loader"><div class="spinner-ring"></div></div>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div id="toast-container"></div>
+
+  <!-- Profile Loading Spinner (small) -->
+  <div id="profile-loading" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:50000;align-items:center;justify-content:center;">
+    <div class="spinner-ring" style="border-top-color:var(--blue);"></div>
+  </div>
+
+  <!-- Onboarding Modal -->
+  <div class="onboarding-overlay" id="onboarding-overlay">
+    <div class="onboarding-card">
+      <i class="fa-solid fa-graduation-cap" style="font-size:2.4rem;color:var(--blue);margin-bottom:6px;"></i>
+      <h3 data-i18n="onboarding_title">Welcome to SASS</h3>
+      <p style="color:var(--text2);margin-bottom:16px;" data-i18n="onboarding_subtitle">Tell us about yourself</p>
+      <input type="text" id="onboard-name" placeholder="Your Name" data-i18n-placeholder="name_placeholder">
+      <input type="text" id="onboard-subject" placeholder="Favorite Subject" data-i18n-placeholder="subject_placeholder">
+      <input type="text" id="onboard-class" placeholder="Your Class (e.g. Grade 10)" data-i18n-placeholder="class_placeholder">
+      <button id="onboard-save-btn"><span data-i18n="get_started">Get Started</span> <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="logo" onclick="scrollToSection('hero')"><i class="fa-solid fa-graduation-cap"></i> SASS</div>
+    <ul class="nav-links" id="nav-links">
+      <li><a onclick="scrollToSection('hero')" class="active" data-i18n="nav_home">Home</a></li>
+      <li><a onclick="scrollToSection('about-section')" data-i18n="nav_about">About</a></li>
+      <li><a onclick="scrollToSection('staff-section')" data-i18n="nav_staff">Staff</a></li>
+      <li><a onclick="scrollToSection('achievers-section')" data-i18n="nav_achievers">Achievers</a></li>
+      <li><a onclick="scrollToSection('history-section')" data-i18n="nav_history">History</a></li>
+      <li><a onclick="scrollToSection('apps-section')" data-i18n="nav_apps">Apps</a></li>
+    </ul>
+    <div class="nav-actions">
+      <!-- FIX: Hamburger button for mobile -->
+      <button id="hamburger-btn" aria-label="Toggle navigation" style="display:none; background:none; border:none; color:var(--text); font-size:1.4rem; cursor:pointer;">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="lang-switch">
+        <select id="lang-select">
+          <option value="en">EN</option>
+          <option value="am">አማ</option>
+          <option value="om">Oromoo</option>
+        </select>
+      </div>
+      <button id="theme-toggle" title="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+      <button id="sign-in-btn" class="btn-signin"><span data-i18n="sign_in">Sign In</span></button>
+      <button id="profile-btn" title="Profile" style="display:none;"><i class="fa-solid fa-user"></i></button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="hero">
+    <div class="floating-icons">
+      <i class="fa-solid fa-book floating-icon"></i>
+      <i class="fa-solid fa-laptop-code floating-icon"></i>
+      <i class="fa-solid fa-lightbulb floating-icon"></i>
+      <i class="fa-solid fa-users floating-icon"></i>
+      <i class="fa-solid fa-chart-line floating-icon"></i>
+    </div>
+    <h1><span class="gradient-text" data-i18n="hero_title">Smart School Platform</span></h1>
+    <p class="typing-text"><span id="typing-span"></span><span class="cursor"></span></p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="stat-num" data-target="2450">0</div><div class="stat-label" data-i18n="hero_students">Students</div></div>
+      <div class="hero-stat"><div class="stat-num" data-target="84">0</div><div class="stat-label" data-i18n="hero_teachers">Teachers</div></div>
+      <div class="hero-stat"><div class="stat-num" data-target="24">0</div><div class="stat-label" data-i18n="hero_tools">Smart Tools</div></div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about-section">
+    <h2 data-i18n="about_title">About Our School</h2>
+    <p class="section-subtitle" data-i18n="about_subtitle">Learn about our institution, statistics, and location</p>
+    <div class="about-grid">
+      <div class="map-container">
+        <div class="map-inner" id="map-inner" style="transform: scale(1);">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1655.913932717351!2d38.964150786100625!3d8.7497285135336!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b72e7b3bb4c93%3A0x513f6b8ab5c7828f!2sBishoftu%20Preparatory%20School%2C%20Bishoftu!5e1!3m2!1sen!2set!4v1777325490819!5m2!1sen!2set" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="School Location"></iframe>
+        </div>
+        <div class="map-zoom-controls">
+          <button id="map-zoom-in">+</button>
+          <button id="map-zoom-out">&minus;</button>
+          <button id="map-zoom-reset"><i class="fa-solid fa-rotate"></i></button>
+        </div>
+      </div>
+      <div class="school-info-card">
+        <h3><i class="fa-solid fa-school"></i> <span data-i18n="school_name">Seden Adea Secondary School</span></h3>
+        <div class="info-row"><i class="fa-solid fa-location-dot"></i> <span data-i18n="school_address">Bishoftu, Ethiopia</span></div>
+        <div class="info-row"><i class="fa-solid fa-phone"></i> +251 11 123 4567</div>
+        <div class="info-row"><i class="fa-solid fa-envelope"></i> info@sedenadea.edu.et</div>
+        <div class="info-row"><i class="fa-solid fa-clock"></i> <span data-i18n="school_hours">Mon–Fri: 8:00 AM – 4:00 PM</span></div>
+        <div class="info-row"><i class="fa-solid fa-calendar"></i> <span data-i18n="school_established">Established: 2005</span></div>
+        <p data-i18n="school_description">Seden Adea is a premier secondary school in Bishoftu dedicated to academic excellence, discipline, and innovation, preparing students for university and beyond.</p>
+        <canvas id="school-stats-chart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Staff Section -->
+  <section id="staff-section">
+    <h2 data-i18n="staff_title">Our Staff</h2>
+    <p class="section-subtitle" data-i18n="staff_subtitle">Meet our dedicated team of educators</p>
+    <div class="staff-grid" id="staff-grid"></div>
+  </section>
+
+  <!-- Achievers Section -->
+  <section id="achievers-section">
+    <h2 data-i18n="achievers_title">Top Achievers</h2>
+    <p class="section-subtitle" data-i18n="achievers_subtitle">Celebrating student excellence across all fields</p>
+    <div class="achiever-categories" id="achiever-categories">
+      <button class="active" data-cat="all" data-i18n="ach_all">All</button>
+      <button data-cat="gpa" data-i18n="ach_gpa">GPA</button>
+      <button data-cat="it" data-i18n="ach_it">IT</button>
+      <button data-cat="football" data-i18n="ach_football">Football</button>
+      <button data-cat="art" data-i18n="ach_art">Art</button>
+      <button data-cat="debate" data-i18n="ach_debate">Debate</button>
+    </div>
+    <div class="achievers-grid" id="achievers-grid"></div>
+  </section>
+
+  <!-- History Section -->
+  <section id="history-section">
+    <h2 data-i18n="history_title">School History</h2>
+    <p class="section-subtitle" data-i18n="history_subtitle">Our journey through the years</p>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <!-- Apps Section -->
+  <section id="apps-section">
+    <h2 data-i18n="apps_title">Smart Apps</h2>
+    <p class="section-subtitle" data-i18n="apps_subtitle">Browse our collection of smart learning tools</p>
+    <div class="filter-bar">
+      <select id="app-category-filter">
+        <option value="all" data-i18n="app_filter_all">All Categories</option>
+        <option value="learning" data-i18n="app_filter_learning">Learning</option>
+        <option value="tools" data-i18n="app_filter_tools">Tools</option>
+        <option value="fun" data-i18n="app_filter_fun">Fun</option>
+      </select>
+      <input type="text" id="app-search-local" placeholder="Search apps..." data-i18n-placeholder="search_apps">
+    </div>
+    <div class="apps-grid" id="apps-grid"></div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="tel:+251111234567"><i class="fa-solid fa-phone"></i> <span data-i18n="footer_call">Call Us</span></a>
+      <a href="https://t.me/sass_school" target="_blank"><i class="fa-brands fa-telegram"></i> Telegram</a>
+      <a href="mailto:info@sedenadea.edu.et"><i class="fa-solid fa-envelope"></i> <span data-i18n="footer_email">Email</span></a>
+      <a onclick="scrollToSection('hero')"><i class="fa-solid fa-house"></i> <span data-i18n="footer_home">Home</span></a>
+    </div>
+    <p class="copyright" data-i18n="footer_copy">&copy; 2024 Seden Adea Secondary School – Smart Academic School System. All rights reserved.</p>
+  </footer>
+
+  <!-- Profile Sidebar -->
+  <div id="profile-sidebar">
+    <button class="close-btn" id="close-sidebar"><i class="fa-solid fa-xmark"></i></button>
+    <div class="avatar-large" style="font-size:3.5rem;text-align:center;color:var(--blue);"><i class="fa-solid fa-circle-user"></i></div>
+    <h3 style="text-align:center;" id="profile-name-display">Guest User</h3>
+    <p style="text-align:center;color:var(--text2);" id="profile-email-display"></p>
+    <p style="text-align:center;color:var(--blue);" id="profile-role-display"></p>
+    <div style="margin-top: 12px;">
+      <label style="font-size:0.78rem;color:var(--text2);" data-i18n="profile_name_label">Name</label>
+      <input type="text" id="profile-edit-name" placeholder="Your Name" data-i18n-placeholder="name_placeholder" readonly>
+    </div>
+    
+    <h4 data-i18n="favorite_apps_title" style="margin-top: 24px;">Favorite Apps</h4>
+    <ul class="fav-list" id="fav-list-sidebar" style="list-style:none;display:flex;flex-direction:column;gap:5px;"></ul>
+    <button class="btn-reset" id="reset-data-btn" style="margin-top: 16px;"><span data-i18n="reset_data">Reset All Data</span> <i class="fa-solid fa-trash"></i></button>
+    <button id="sidebar-theme-toggle" style="padding:9px 14px;border-radius:12px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;font-weight:500;margin-top:8px;" data-i18n="toggle_theme">Toggle Theme</button>
+    <button id="logout-btn" style="padding:9px 14px;border-radius:12px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;font-weight:500;margin-top:8px;" data-i18n="logout">Logout</button>
+  </div>
+
+  <!-- Iframe Overlay -->
+  <div class="iframe-overlay" id="iframe-overlay">
+    <div class="iframe-container">
+      <div class="iframe-header"><span id="iframe-title">App</span><button class="iframe-close" id="iframe-close-btn"><i class="fa-solid fa-xmark"></i></button></div>
+      <iframe id="iframe-content" src="" title="App Frame"></iframe>
+    </div>
+  </div>
+
+  <!-- Timeline Modal -->
+  <div class="modal-overlay" id="timeline-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('timeline-modal')"><i class="fa-solid fa-xmark"></i></button>
+      <h3 id="timeline-modal-title"></h3>
+      <p id="timeline-modal-desc" style="color:var(--text2);line-height:1.7;margin-top:8px;"></p>
+    </div>
+  </div>
+
+  <!-- Staff Modal -->
+  <div class="modal-overlay" id="staff-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('staff-modal')"><i class="fa-solid fa-xmark"></i></button>
+      <div style="text-align:center;" id="staff-modal-content"></div>
+    </div>
+  </div>
+
+  <!-- Floating AI Bot -->
+  <button id="floating-bot" title="AI Assistant"><i class="fa-solid fa-robot"></i></button>
+
+  <script type="module" src="index.js"></script>
+</body>
+</html>

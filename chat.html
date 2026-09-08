@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Seden Adea – School Chat</title>
+
+  <script>
+    (function(){
+      var theme = localStorage.getItem('sass_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="theme.css">
+
+  <style>
+    :root { --header-height: 64px; --input-height: 76px; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg); color: var(--text);
+      height: 100vh; overflow: hidden; display: flex; flex-direction: column;
+    }
+
+    /* ===== HEADER ===== */
+    .chat-header {
+      height: var(--header-height); background: var(--surface);
+      border-bottom: 1px solid var(--border); padding: 0 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-weight: 600; font-size: 1.1rem; z-index: 100;
+    }
+    .chat-header-title { display: flex; align-items: center; gap: 10px; }
+    .chat-header-title i { color: var(--blue); font-size: 1.3rem; }
+    .btn-back {
+      background: var(--input-bg); border: 1px solid var(--border);
+      color: var(--text); padding: 6px 12px; border-radius: 8px;
+      text-decoration: none; font-size: 0.9rem; transition: all 0.2s;
+    }
+    .btn-back:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+    /* ===== CHAT AREA ===== */
+    .chat-area {
+      flex: 1; overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column; gap: 16px;
+      scroll-behavior: smooth;
+    }
+    .loading-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100%; color: var(--text2); gap: 12px;
+    }
+    .spinner-ring {
+      width: 36px; height: 36px; border: 3px solid var(--border);
+      border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== MESSAGES ===== */
+    .message-container { display: flex; flex-direction: column; max-width: 75%; position: relative; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .message-container.sent { align-self: flex-end; align-items: flex-end; }
+    .message-container.received { align-self: flex-start; align-items: flex-start; }
+
+    .message-sender { font-size: 0.75rem; color: var(--text2); margin-bottom: 4px; font-weight: 500; padding: 0 4px; }
+    
+    .message-bubble {
+      padding: 10px 16px; font-size: 0.95rem; line-height: 1.5;
+      word-wrap: break-word; position: relative;
+    }
+    .sent .message-bubble {
+      background: var(--blue); color: #fff;
+      border-radius: 16px 16px 4px 16px;
+    }
+    .received .message-bubble {
+      background: var(--surface); color: var(--text); border: 1px solid var(--border);
+      border-radius: 16px 16px 16px 4px;
+    }
+
+    .message-time { font-size: 0.7rem; color: var(--text2); margin-top: 4px; padding: 0 4px; }
+
+    .delete-btn {
+      position: absolute; top: -8px; right: -8px; background: var(--red); color: #fff;
+      border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 0.7rem;
+      cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .message-container:hover .delete-btn { display: flex; }
+
+    /* ===== INPUT AREA ===== */
+    .chat-input-wrapper {
+      height: var(--input-height); background: var(--surface); border-top: 1px solid var(--border);
+      padding: 12px 20px; display: flex; gap: 12px; align-items: center; z-index: 100;
+    }
+    .chat-input-wrapper input {
+      flex: 1; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--input-bg); color: var(--text); font-size: 0.95rem; outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .chat-input-wrapper input:focus { border-color: var(--blue); }
+    .chat-input-wrapper input:disabled { opacity: 0.6; cursor: not-allowed; }
+    
+    .btn-send {
+      width: 46px; height: 46px; border-radius: 12px; border: none;
+      background: var(--blue); color: #fff; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; font-size: 1.1rem; transition: transform 0.2s ease;
+    }
+    .btn-send:hover { transform: scale(1.05); }
+    .btn-send:disabled { background: var(--border); color: var(--text2); cursor: not-allowed; transform: none; }
+  </style>
+</head>
+<body>
+
+  <div class="chat-header">
+    <div class="chat-header-title">
+      <i class="fa-solid fa-comments"></i>
+      <span>School Chat</span>
+    </div>
+    <a href="index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Home</a>
+  </div>
+
+  <main class="chat-area" id="chat-area">
+    <div class="loading-state" id="chat-loading">
+      <div class="spinner-ring"></div>
+      <p>Connecting to secure chat…</p>
+    </div>
+    <!-- Messages append here seamlessly -->
+  </main>
+
+  <div class="chat-input-wrapper">
+    <input type="text" id="message-input" placeholder="Type a message…" autocomplete="off" disabled>
+    <button id="send-btn" class="btn-send" disabled><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+    import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+    const chatArea = document.getElementById('chat-area');
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const loadingEl = document.getElementById('chat-loading');
+
+    let currentUser = null;
+    let displayName = 'User';
+    let isAdmin = false;
+
+    // Scroll helper
+    function scrollToBottom() {
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        loadingEl.innerHTML = '<i class="fa-solid fa-lock" style="font-size:2rem; margin-bottom:8px;"></i><p>Please <a href="login.html" style="color:var(--blue);">Sign In</a> to use the chat.</p>';
+        messageInput.disabled = true;
+        sendBtn.disabled = true;
+        return;
+      }
+
+      currentUser = user;
+      displayName = user.email ? user.email.split('@')[0] : 'User';
+
+      // Check admin status securely
+      try {
+        const adminDoc = await getDoc(doc(db, "admins", user.uid));
+        if (adminDoc.exists() && adminDoc.data().role === 'admin') isAdmin = true;
+      } catch (e) { isAdmin = false; }
+
+      messageInput.disabled = false;
+      sendBtn.disabled = false;
+      loadingEl.style.display = 'none';
+
+      // OPTIMIZATION: docChanges() makes the chat update instantly without flickering
+      const q = query(collection(db, "chat"), orderBy("timestamp", "asc"));
+      onSnapshot(q, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+            renderMessage(change.doc.id, change.doc.data());
+          }
+          if (change.type === "removed") {
+            const msgEl = document.getElementById(`msg-${change.doc.id}`);
+            if (msgEl) msgEl.remove();
+          }
+        });
+        // Auto scroll on new messages
+        setTimeout(scrollToBottom, 50); 
+      });
+    });
+
+    function renderMessage(id, msg) {
+      const isSentByMe = msg.uid === currentUser.uid;
+      let timeString = '';
+      if (msg.timestamp) {
+        timeString = new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+
+      const msgDiv = document.createElement('div');
+      msgDiv.id = `msg-${id}`;
+      msgDiv.className = `message-container ${isSentByMe ? 'sent' : 'received'}`;
+      
+      let html = '';
+      if (!isSentByMe) {
+        html += `<div class="message-sender">${escapeHTML(msg.displayName)}</div>`;
+      }
+      
+      html += `<div class="message-bubble">${escapeHTML(msg.text)}</div>`;
+      if (timeString) html += `<div class="message-time">${timeString}</div>`;
+
+      // Admin delete privilege
+      if (isAdmin) {
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        delBtn.title = 'Delete message';
+        delBtn.onclick = async () => {
+          if (confirm('Delete this message for everyone?')) {
+            await deleteDoc(doc(db, "chat", id));
+          }
+        };
+        msgDiv.appendChild(delBtn);
+      }
+
+      msgDiv.innerHTML += html;
+      chatArea.appendChild(msgDiv);
+    }
+
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text || !currentUser) return;
+      
+      messageInput.value = ''; // clear instantly for good UX
+      messageInput.focus();
+
+      try {
+        await addDoc(collection(db, "chat"), {
+          uid: currentUser.uid,
+          displayName: displayName,
+          text: text,
+          timestamp: serverTimestamp()
+        });
+      } catch (err) {
+        alert('Failed to send message: ' + err.message);
+      }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

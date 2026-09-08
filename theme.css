@@ -1,0 +1,82 @@
+/* ===== GLOBAL SASS THEME VARIABLES ===== */
+/* This file controls the color palette for the entire application */
+
+:root {
+  /* ===== DARK MODE (Soft Slate & Easy on the Eyes) ===== */
+  --bg: #0f172a;                     /* Soft dark slate, much lighter than pure black */
+  --bg2: #1e293b;                    /* Lighter slate for contrast */
+  --surface: #1e293b;                /* Cards, modals, floating elements */
+  
+  --text: #e2e8f0;                   /* Soft off-white, prevents eye strain */
+  --text2: #94a3b8;                  /* Gentle secondary grey-blue */
+  
+  --border: rgba(255, 255, 255, 0.08);
+  --card-bg: rgba(30, 41, 59, 0.7);  /* Frosted slate glass */
+  
+  /* Brand Accents */
+  --blue: #3b82f6;                   /* Bright, friendly blue */
+  --purple: #8b5cf6;                 /* Soft violet */
+  --green: #10b981;                  /* Success states */
+  --red: #ef4444;                    /* Destructive actions / errors */
+  --gold: #f59e0b;                   /* Highlights / Director badges */
+  
+  /* Gradients & Effects */
+  --gradient-1: #3b82f6;
+  --gradient-2: #8b5cf6;
+  --glow: rgba(59, 130, 246, 0.15);  
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --card-hover-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  
+  /* Utilities */
+  --input-bg: #0b1120;               /* Slightly darker than bg for inputs */
+  --nav-bg: rgba(15, 23, 42, 0.85);
+  --timeline-line: #334155;
+}
+
+[data-theme="light"] {
+  /* ===== LIGHT MODE (Clean, Modern & Professional) ===== */
+  --bg: #f8fafc;                     /* Very soft cool grey/white */
+  --bg2: #ffffff;                    /* Pure white */
+  --surface: #ffffff;                /* Cards, modals */
+  
+  --text: #1e293b;                   /* Deep slate, not harsh black */
+  --text2: #64748b;                  /* Medium slate */
+  
+  --border: rgba(15, 23, 42, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.9);
+  
+  /* Brand Accents */
+  --blue: #2563eb;                   /* Professional rich blue */
+  --purple: #6366f1;                 /* Indigo accent */
+  --green: #059669;                  /* Success states */
+  --red: #dc2626;                    /* Destructive actions */
+  --gold: #d97706;                   /* Highlights */
+  
+  /* Gradients & Effects */
+  --gradient-1: #2563eb;
+  --gradient-2: #6366f1;
+  --glow: rgba(37, 99, 235, 0.15);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  --card-hover-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  
+  /* Utilities */
+  --input-bg: #f1f5f9;
+  --nav-bg: rgba(255, 255, 255, 0.9);
+  --timeline-line: #cbd5e1;
+}
+
+/* Global scrollbar styling for a polished feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text2);
+}

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Seden Adea – Development Info</title>
+
+  <script>
+    (function(){
+      var theme = localStorage.getItem('sass_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="theme.css">
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 24px;
+      transition: background 0.3s ease, color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    
+    .header { text-align: center; margin-bottom: 40px; }
+    .header h1 {
+      font-size: 2.2rem; font-weight: 800;
+      color: var(--text); letter-spacing: -0.5px;
+      margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 12px;
+    }
+    .header h1 i { color: var(--blue); }
+    .header p { color: var(--text2); font-size: 1.05rem; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px; margin-bottom: 24px;
+      box-shadow: var(--shadow); transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: var(--blue); }
+    
+    .card h2 {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.3rem; margin-bottom: 20px; color: var(--text);
+    }
+    .card h2 i { color: var(--blue); }
+
+    /* Developer info */
+    .dev-info { display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
+    .dev-avatar {
+      width: 80px; height: 80px; border-radius: 16px;
+      background: var(--input-bg); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; color: var(--blue); flex-shrink: 0;
+    }
+    .dev-details { flex: 1; min-width: 250px; }
+    .dev-details p { margin-bottom: 8px; font-size: 0.95rem; color: var(--text2); line-height: 1.6; }
+    .dev-details strong { color: var(--text); font-weight: 600; }
+
+    /* Tools grid */
+    .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+    .tool-item {
+      background: var(--input-bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px; text-align: center;
+      transition: all 0.2s ease;
+    }
+    .tool-item:hover { background: var(--surface); border-color: var(--blue); transform: translateY(-3px); }
+    .tool-item i { font-size: 1.8rem; color: var(--blue); margin-bottom: 8px; display: block; }
+    .tool-item span { display: block; color: var(--text); font-weight: 500; font-size: 0.85rem; }
+    .tool-item small { display: block; color: var(--text2); font-size: 0.75rem; margin-top: 4px; }
+
+    /* Features */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .feature-item {
+      background: var(--input-bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px; transition: all 0.2s ease;
+    }
+    .feature-item:hover { border-color: var(--purple); transform: translateY(-2px); }
+    .feature-item i { font-size: 1.8rem; color: var(--purple); margin-bottom: 12px; display: block; }
+    .feature-item h4 { font-size: 1rem; margin-bottom: 6px; color: var(--text); }
+    .feature-item p { font-size: 0.85rem; color: var(--text2); line-height: 1.5; }
+
+    /* Acknowledgements */
+    .acknowledgement-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 4px solid var(--blue); border-radius: 12px;
+      padding: 24px 32px; margin-bottom: 24px; position: relative;
+    }
+    .acknowledgement-card h2 { color: var(--text); font-size: 1.3rem; margin-bottom: 16px; display: flex; gap: 10px; align-items: center; }
+    .acknowledgement-card h2 i { color: var(--blue); }
+    .acknowledgement-card p {
+      font-size: 0.95rem; line-height: 1.7; color: var(--text2);
+      margin-bottom: 12px; position: relative; z-index: 1;
+    }
+    .acknowledgement-card p strong { color: var(--text); font-weight: 600; }
+
+    /* Footer */
+    .nexora-footer {
+      margin-top: 40px; text-align: center; padding: 32px 24px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .nexora-footer img {
+      width: 64px; height: 64px; border-radius: 12px; margin-bottom: 16px;
+    }
+    .nexora-footer h3 { font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .nexora-footer p { color: var(--text2); font-size: 0.95rem; margin-bottom: 16px; }
+    
+    .nexora-telegram {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--blue); color: #fff; padding: 10px 20px;
+      border-radius: 10px; text-decoration: none; font-weight: 600;
+      transition: opacity 0.2s ease; font-size: 0.9rem;
+    }
+    .nexora-telegram:hover { opacity: 0.9; }
+
+    .back-link { text-align: center; margin-top: 24px; }
+    .back-link a {
+      color: var(--text2); text-decoration: none; font-size: 0.95rem;
+      display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s ease; font-weight: 500;
+    }
+    .back-link a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fa-solid fa-code"></i> SASS Development</h1>
+      <p>The architecture behind the Smart Academic School System</p>
+    </div>
+
+    <div class="card">
+      <h2><i class="fa-solid fa-user-gear"></i> Lead Developer</h2>
+      <div class="dev-info">
+        <div class="dev-avatar"><i class="fa-solid fa-user-astronaut"></i></div>
+        <div class="dev-details">
+          <p><strong>Name:</strong> Fikir Habtamu</p>
+          <p><strong>Role:</strong> Full‑Stack Developer & Founder of NeXORA</p>
+          <p><strong>Contact:</strong> fikirhabtamu2@gmail.com</p>
+          <p><strong>Bio:</strong> Educator turned developer. Built SASS to replace paper‑based school management with a smart, affordable digital platform. Every line of code was written with dedication for Ethiopian schools.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fa-solid fa-star"></i> Core Capabilities</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <i class="fa-solid fa-robot"></i>
+          <h4>AI Assistant</h4>
+          <p>24/7 school helper powered by Groq API models for instant responses.</p>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-chart-line"></i>
+          <h4>Automated Ranking</h4>
+          <p>Automatic class rank, subject averages, and grade generation.</p>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-comments"></i>
+          <h4>Real‑time Comm</h4>
+          <p>Live school‑wide messaging with instantaneous Firestore listeners.</p>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-shield-halved"></i>
+          <h4>Secure Authentication</h4>
+          <p>Role-based routing (Admin, Teacher, Student) using Firebase Auth.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fa-solid fa-toolbox"></i> Technology Stack</h2>
+      <div class="tools-grid">
+        <div class="tool-item"><i class="fa-brands fa-html5"></i> <span>HTML5</span> <small>Structure</small></div>
+        <div class="tool-item"><i class="fa-brands fa-css3-alt"></i> <span>CSS3</span> <small>UI/UX Design</small></div>
+        <div class="tool-item"><i class="fa-brands fa-js"></i> <span>JavaScript</span> <small>Logic</small></div>
+        <div class="tool-item"><i class="fa-solid fa-fire"></i> <span>Firebase</span> <small>Auth & DB</small></div>
+        <div class="tool-item"><i class="fa-solid fa-chart-pie"></i> <span>Chart.js</span> <small>Data Viz</small></div>
+        <div class="tool-item"><i class="fa-solid fa-file-pdf"></i> <span>jsPDF</span> <small>Exports</small></div>
+      </div>
+    </div>
+
+    <div class="acknowledgement-card">
+      <h2><i class="fa-solid fa-heart"></i> Acknowledgements</h2>
+      <p>First and foremost, I thank <strong>GOD</strong> for the wisdom, strength, and guidance throughout this journey. Without His grace, nothing would be possible.</p>
+      <p>I am deeply grateful to <strong>my teacher</strong> who entrusted us with this project and inspired us to push beyond our limits. Your belief in us made SASS a reality.</p>
+      <p>To <strong>my family</strong> – thank you for your endless patience, encouragement, and love. You are my foundation.</p>
+      <p>And a special shout‑out to <strong>Speed</strong> – your help, motivation, and late‑night debug sessions kept this project alive. You’re a legend.</p>
+    </div>
+
+    <div class="nexora-footer">
+      <img src="dev.png" alt="Nexora Logo" onerror="this.style.display='none'">
+      <h3>Powered by Nexora</h3>
+      <p>Innovative digital solutions for modern education</p>
+      <a href="https://t.me/nexoraET" target="_blank" class="nexora-telegram">
+        <i class="fa-brands fa-telegram"></i> @nexoraET
+      </a>
+    </div>
+
+    <div class="back-link">
+      <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+    </div>
+  </div>
+</body>
+</html>

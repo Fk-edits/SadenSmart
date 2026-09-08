@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Seden Adea – Login</title>
+
+  <script>
+    (function(){
+      var theme = localStorage.getItem('sass_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="theme.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      transition: background 0.3s ease, color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      letter-spacing: -0.5px;
+    }
+    .logo i { color: var(--blue); font-size: 2rem; }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 24px;
+      background: var(--input-bg);
+      border-radius: 10px;
+      padding: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px 0;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text2);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab.active {
+      background: var(--surface);
+      color: var(--blue);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+      font-family: inherit;
+    }
+
+    input:focus { border-color: var(--blue); }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+      color: var(--text2);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .btn-google {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--input-bg);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-google:hover {
+      background: var(--surface);
+      border-color: var(--blue);
+    }
+
+    .msg { font-size: 0.9rem; margin-top: 16px; padding: 10px; border-radius: 8px; display: none; font-weight: 500; text-align: center; }
+    .msg.error { display: block; background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+    .footer-link { text-align: center; margin-top: 24px; }
+    .footer-link a {
+      color: var(--text2);
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s ease;
+      font-weight: 500;
+    }
+    .footer-link a:hover { color: var(--text); }
+
+    .toggle-mode {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.9rem;
+      color: var(--text2);
+    }
+    .toggle-mode a {
+      color: var(--blue);
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+    .toggle-mode a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="logo"><i class="fa-solid fa-graduation-cap"></i> Seden Adea</div>
+
+      <!-- User Role Tabs: Student -> Teacher -> Admin -->
+      <div class="tabs">
+        <button class="tab active" data-role="student">Student</button>
+        <button class="tab" data-role="teacher">Teacher</button>
+        <button class="tab" data-role="admin">Admin</button>
+      </div>
+
+      <form id="auth-form">
+        <div class="form-group">
+          <input type="email" id="email" placeholder="Email Address" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="password" placeholder="Password" required>
+        </div>
+        
+        <!-- Student Extra Fields (Only visible on Sign Up) -->
+        <div id="student-extra-fields" style="display: none;">
+          <div class="form-group"><input type="text" id="student-name" placeholder="Full Name"></div>
+          <div class="form-group"><input type="text" id="student-subject" placeholder="Favorite Subject (Optional)"></div>
+          <div class="form-group"><input type="text" id="student-class" placeholder="Class (e.g. Grade 10)"></div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submit-btn">
+          <i class="fa-solid fa-right-to-bracket"></i> <span id="submit-text">Sign In</span>
+        </button>
+      </form>
+
+      <p class="toggle-mode" id="student-toggle-mode">
+        <span id="toggle-prompt">Don't have an account?</span>
+        <a id="toggle-link">Create Account</a>
+      </p>
+
+      <div class="divider">OR</div>
+
+      <button id="google-signin-btn" class="btn-google">
+        <i class="fa-brands fa-google" style="color: #DB4437;"></i> Sign in with Google
+      </button>
+
+      <p class="msg" id="error-message"></p>
+
+      <div class="footer-link">
+        <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDceDGKyu8tyZ_ZLPefkL3ElzVNHfQmN4",
+      authDomain: "sass-school-ea659.firebaseapp.com",
+      projectId: "sass-school-ea659",
+      storageBucket: "sass-school-ea659.firebasestorage.app",
+      messagingSenderId: "941464239698",
+      appId: "1:941464239698:web:ea1fb74408bca4fc95698b",
+      measurementId: "G-VPKNRKCHTR"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    // ==================== TAB SWITCHING & UI LOGIC ====================
+    let currentRole = 'student'; // Default to student
+    let isCreating = false;
+
+    const tabs = document.querySelectorAll('.tab');
+    const studentExtraFields = document.getElementById('student-extra-fields');
+    const studentToggleMode = document.getElementById('student-toggle-mode');
+    const submitText = document.getElementById('submit-text');
+    const submitBtn = document.getElementById('submit-btn');
+    const toggleLink = document.getElementById('toggle-link');
+    const togglePrompt = document.getElementById('toggle-prompt');
+    const errorEl = document.getElementById('error-message');
+
+    function setMode(creating) {
+      isCreating = creating;
+      errorEl.className = 'msg';
+      errorEl.textContent = '';
+      
+      if (creating) {
+        submitText.textContent = 'Create Account';
+        submitBtn.querySelector('i').className = 'fa-solid fa-user-plus';
+        togglePrompt.textContent = 'Already have an account?';
+        toggleLink.textContent = 'Sign In';
+        studentExtraFields.style.display = 'block';
+      } else {
+        submitText.textContent = 'Sign In';
+        submitBtn.querySelector('i').className = 'fa-solid fa-right-to-bracket';
+        togglePrompt.textContent = "Don't have an account?";
+        toggleLink.textContent = 'Create Account';
+        studentExtraFields.style.display = 'none';
+      }
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentRole = tab.dataset.role;
+        
+        if (currentRole === 'student') {
+          studentToggleMode.style.display = 'block';
+          setMode(isCreating);
+        } else {
+          studentToggleMode.style.display = 'none';
+          isCreating = false;
+          setMode(false);
+        }
+      });
+    });
+
+    toggleLink.addEventListener('click', () => {
+      setMode(!isCreating);
+    });
+
+    // Initialize Default State
+    setMode(false);
+
+    // ==================== FORM SUBMISSION ====================
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      errorEl.className = 'msg';
+      
+      if (!email || !password) {
+        errorEl.textContent = 'Please fill all required fields.';
+        errorEl.className = 'msg error';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      const originalHtml = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+
+      try {
+        if (currentRole === 'student' && isCreating) {
+          const studentName = document.getElementById('student-name').value.trim();
+          const studentSubject = document.getElementById('student-subject').value.trim();
+          const studentClass = document.getElementById('student-class').value.trim();
+          
+          if (!studentName) {
+            errorEl.textContent = 'Please enter your full name.';
+            errorEl.className = 'msg error';
+            resetBtn(originalHtml);
+            return;
+          }
+          const userCred = await createUserWithEmailAndPassword(auth, email, password);
+          await addDoc(collection(db, "students"), {
+            uid: userCred.user.uid,
+            email: email,
+            name: studentName,
+            subject: studentSubject,
+            class: studentClass
+          });
+          window.location.href = 'index.html';
+        } else {
+          const userCred = await signInWithEmailAndPassword(auth, email, password);
+          await handleRoleRedirect(userCred.user.uid);
+        }
+      } catch (err) {
+        errorEl.className = 'msg error';
+        if (err.code === 'auth/email-already-in-use') {
+          errorEl.textContent = 'Email already registered. Please sign in.';
+        } else if (err.code === 'auth/invalid-credential') {
+          errorEl.textContent = 'Incorrect email or password.';
+        } else {
+          errorEl.textContent = err.message;
+        }
+        resetBtn(originalHtml);
+      }
+    });
+
+    // ==================== GOOGLE LOGIN ====================
+    document.getElementById('google-signin-btn').addEventListener('click', async (e) => {
+      errorEl.className = 'msg';
+      const btn = e.target.closest('button');
+      const originalHtml = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting...';
+      btn.disabled = true;
+
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        await handleRoleRedirect(result.user.uid);
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        if (err.code !== 'auth/popup-closed-by-user') {
+          errorEl.textContent = err.message;
+          errorEl.className = 'msg error';
+        }
+      }
+    });
+
+    function resetBtn(html) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = html;
+    }
+
+    // ==================== REDIRECT LOGIC ====================
+    async function handleRoleRedirect(uid) {
+      errorEl.className = 'msg error';
+
+      if (currentRole === 'admin') {
+        const snap = await getDocs(query(collection(db, "admins"), where("uid", "==", uid)));
+        if (!snap.empty) { window.location.href = 'admin.html'; return; }
+        await auth.signOut();
+        errorEl.textContent = 'Access denied: No admin privileges found for this account.';
+        resetBtn('<i class="fa-solid fa-right-to-bracket"></i> Sign In');
+        return;
+      }
+
+      if (currentRole === 'teacher') {
+        const snap = await getDocs(query(collection(db, "teachers"), where("uid", "==", uid)));
+        if (!snap.empty) { window.location.href = 'teacher.html'; return; }
+        await auth.signOut();
+        errorEl.textContent = 'Access denied: No teacher record found.';
+        resetBtn('<i class="fa-solid fa-right-to-bracket"></i> Sign In');
+        return;
+      }
+
+      if (currentRole === 'student') {
+        const snap = await getDocs(query(collection(db, "students"), where("uid", "==", uid)));
+        if (!snap.empty) { window.location.href = 'index.html'; return; }
+        // For students, if they use Google Sign-in and aren't in the DB, we might want to let them in,
+        // but sticking to existing logic: kick them out if no student record.
+        await auth.signOut();
+        errorEl.textContent = 'No student record found. Please Create an Account first.';
+        resetBtn('<i class="fa-solid fa-right-to-bracket"></i> Sign In');
+        return;
+      }
+    }
+  </script>
+</body>
+</html>

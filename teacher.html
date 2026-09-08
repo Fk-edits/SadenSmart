@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Seden Adea – Teacher Dashboard</title>
+
+  <!-- Read saved theme immediately -->
+  <script>
+    (function(){
+      var theme = localStorage.getItem('sass_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Central theme (must come first) -->
+  <link rel="stylesheet" href="theme.css">
+  <!-- Teacher-specific styles -->
+  <link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+
+  <div id="loader"><div class="spinner-ring"></div></div>
+
+  <header class="teacher-header">
+    <div class="header-brand">
+      <i class="fa-solid fa-chalkboard-user"></i> 
+      <span id="header-teacher-name">Teacher Portal</span>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+      <button id="logout-btn" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span></button>
+    </div>
+  </header>
+
+  <div class="teacher-container">
+    <aside class="teacher-sidebar">
+      <nav>
+        <a data-section="dashboard" class="sidebar-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+        <a data-section="marks" class="sidebar-link"><i class="fa-solid fa-edit"></i> Enter Marks</a>
+        <a data-section="settings" class="sidebar-link"><i class="fa-solid fa-gear"></i> Settings</a>
+      </nav>
+    </aside>
+
+    <main class="teacher-main" id="teacher-main">
+      <div class="loading-state">
+        <div class="spinner-ring"></div>
+        <p>Loading your dashboard…</p>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="teacher.js"></script>
+</body>
+</html>
