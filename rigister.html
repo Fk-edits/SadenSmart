@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Seden Adea – Student Registration</title>
+
+  <script>
+    (function(){
+      var theme = localStorage.getItem('sass_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="theme.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; padding: 24px;
+      transition: background 0.3s ease, color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    .header { width: 100%; max-width: 600px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    .header .logo { font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 8px; color: var(--text); }
+    .header .logo i { color: var(--blue); font-size: 1.6rem; }
+    .btn-back { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: all 0.2s ease; }
+    .btn-back:hover { background: var(--input-bg); border-color: var(--blue); color: var(--blue); }
+
+    .reg-container { width: 100%; max-width: 600px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+
+    .stepper { display: flex; justify-content: space-between; align-items: center; padding: 24px 32px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; z-index: 2; flex: 1; }
+    .step-circle { width: 32px; height: 32px; border-radius: 50%; background: var(--input-bg); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; color: var(--text2); transition: all 0.3s ease; }
+    .step.active .step-circle { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 0 12px var(--glow); }
+    .step.completed .step-circle { background: var(--green); border-color: var(--green); color: #fff; }
+    .step-label { font-size: 0.7rem; font-weight: 600; color: var(--text2); text-transform: uppercase; text-align: center; }
+    .step.active .step-label { color: var(--blue); }
+    .step.completed .step-label { color: var(--green); }
+    
+    .step:not(:last-child)::after { content: ''; position: absolute; top: 16px; left: 60%; width: 80%; height: 2px; background: var(--border); z-index: -1; transition: background 0.3s ease; }
+    .step.completed:not(:last-child)::after { background: var(--green); }
+
+    .step-content { padding: 32px; display: none; animation: fadeIn 0.4s ease; }
+    .step-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .step-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 24px; text-align: center; color: var(--text); }
+    
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 0.85rem; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+    input, select { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.95rem; outline: none; transition: border-color 0.2s ease; font-family: inherit; }
+    input:focus, select:focus { border-color: var(--blue); }
+    
+    .btn-primary { width: 100%; padding: 14px; border: none; border-radius: 10px; background: var(--blue); color: #fff; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 24px; }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 12px var(--glow); }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none; }
+    
+    .btn-secondary { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease; margin-top: 12px; }
+    .btn-secondary:hover { background: var(--input-bg); border-color: var(--text2); }
+
+    .info-box { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem; }
+    .info-row:last-child { margin-bottom: 0; }
+    .info-label { color: var(--text2); }
+    .info-value { font-weight: 600; color: var(--text); text-align: right; }
+
+    .copy-btn { background: var(--input-bg); border: 1px solid var(--border); color: var(--blue); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+    .copy-btn:hover { background: var(--blue); color: #fff; }
+
+    .success-icon { font-size: 4rem; color: var(--green); text-align: center; margin-bottom: 16px; }
+    .qr-placeholder { width: 150px; height: 150px; background: #fff; margin: 20px auto; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #000; border: 4px solid var(--border); }
+    
+    .msg { font-size: 0.9rem; margin-top: 16px; padding: 12px; border-radius: 8px; display: none; font-weight: 500; text-align: center; }
+    .msg.error { display: block; background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2); }
+    .msg.success { display: block; background: rgba(16, 185, 129, 0.1); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.2); }
+
+    @media (max-width: 600px) {
+      .stepper { padding: 16px; }
+      .step-label { font-size: 0.6rem; }
+      .step:not(:last-child)::after { width: 70%; left: 65%; }
+      .step-content { padding: 24px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo"><i class="fa-solid fa-graduation-cap"></i> Registration</div>
+    
+  </div>
+
+  <div class="reg-container">
+    <div class="stepper" id="stepper">
+      <div class="step active" id="nav-step-1"><div class="step-circle"><i class="fa-solid fa-magnifying-glass"></i></div><div class="step-label">Find</div></div>
+      <div class="step" id="nav-step-2"><div class="step-circle"><i class="fa-solid fa-credit-card"></i></div><div class="step-label">Pay</div></div>
+      <div class="step" id="nav-step-3"><div class="step-circle"><i class="fa-solid fa-user-check"></i></div><div class="step-label">Info</div></div>
+      <div class="step" id="nav-step-4"><div class="step-circle"><i class="fa-solid fa-id-card"></i></div><div class="step-label">Card</div></div>
+      <div class="step" id="nav-step-5"><div class="step-circle"><i class="fa-solid fa-check"></i></div><div class="step-label">Done</div></div>
+    </div>
+
+    <!-- STEP 1: Find Profile -->
+    <div class="step-content active" id="step-1">
+      <h2 class="step-title">Find Your Profile</h2>
+      <p style="text-align:center; color:var(--text2); margin-bottom:24px; font-size:0.9rem;">This registration is strictly for existing students of Seden Adea School.</p>
+      
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label>Last Grade</label>
+          <select id="search-grade">
+            <option value="" disabled selected>Choose</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Last Section</label>
+          <select id="search-section"></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Full Registered Name</label>
+        <input type="text" id="search-name" placeholder="Exact name from last year">
+      </div>
+      <p class="msg" id="step1-msg"></p>
+      <button class="btn-primary" id="btn-find-profile"><i class="fa-solid fa-search"></i> Find My Profile</button>
+    </div>
+
+    <!-- STEP 1.5: Student Found Confirmation -->
+    <div class="step-content" id="step-1-5">
+      <div style="text-align:center; color:var(--green); font-size:3rem; margin-bottom:16px;"><i class="fa-solid fa-circle-check"></i></div>
+      <h2 class="step-title">Student Found!</h2>
+      <div class="info-box">
+        <div class="info-row"><span class="info-label">Student Name:</span><span class="info-value" id="found-name">---</span></div>
+        <div class="info-row"><span class="info-label">Previous Class:</span><span class="info-value" id="found-old-class">---</span></div>
+        <hr style="border:0; border-top:1px dashed var(--border); margin:12px 0;">
+        <div class="info-row"><span class="info-label">Eligible For:</span><span class="info-value" style="color:var(--blue); font-size:1.1rem;">GRADE <span id="found-new-grade">---</span></span></div>
+      </div>
+      <button class="btn-primary" id="btn-continue-payment">Continue to Payment <i class="fa-solid fa-arrow-right"></i></button>
+      <button class="btn-secondary" id="btn-wrong-student">This is not me</button>
+    </div>
+
+    <!-- STEP 2: Payment -->
+    <div class="step-content" id="step-2">
+      <h2 class="step-title">Registration Payment</h2>
+      <div class="info-box" style="border-color:var(--blue); background:rgba(59,130,246,0.05);">
+        <div class="info-row"><span class="info-label">Registration Fee:</span><span class="info-value" style="color:var(--blue); font-size:1.2rem;">500 ETB</span></div>
+        <div class="info-row" style="align-items:center;">
+          <span class="info-label">School Account:</span>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span class="info-value" id="school-account">1000123456789</span>
+            <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('school-account').textContent); alert('Copied!');"><i class="fa-solid fa-copy"></i></button>
+          </div>
+        </div>
+        <div class="info-row"><span class="info-label">Account Name:</span><span class="info-value">Seden Adea School</span></div>
+      </div>
+      <p style="text-align:center; color:var(--text2); margin-bottom:16px; font-size:0.85rem;">Make your payment via Telebirr, then enter the Transaction ID below.</p>
+      
+      <div class="form-group">
+        <label>Transaction ID / Receipt Number</label>
+        <input type="text" id="tx-id" placeholder="e.g. 8H3KJ9M...">
+      </div>
+      <p class="msg" id="step2-msg"></p>
+      <button class="btn-primary" id="btn-verify-payment"><i class="fa-solid fa-shield-check"></i> Verify Payment</button>
+    </div>
+
+    <!-- STEP 3: Information Confirm -->
+    <div class="step-content" id="step-3">
+      <h2 class="step-title">Confirm Your Information</h2>
+      <div class="info-box">
+        <div class="info-row"><span class="info-label">Full Name:</span><span class="info-value" id="confirm-name">---</span></div>
+        <div class="info-row"><span class="info-label">Previous Class:</span><span class="info-value" id="confirm-old-class">---</span></div>
+        <div class="info-row"><span class="info-label">Next Grade:</span><span class="info-value" style="color:var(--blue);">Grade <span id="confirm-new-grade">---</span></span></div>
+        <div class="info-row"><span class="info-label">Payment Status:</span><span class="info-value" style="color:var(--green);"><i class="fa-solid fa-check-circle"></i> Verified</span></div>
+      </div>
+      <button class="btn-primary" id="btn-confirm-info">Information is Correct <i class="fa-solid fa-check"></i></button>
+    </div>
+
+    <!-- STEP 4: Student Card -->
+    <div class="step-content" id="step-4">
+      <h2 class="step-title">Student Card Registration</h2>
+      <p style="text-align:center; color:var(--text2); margin-bottom:24px; line-height:1.6;">Your digital registration is almost complete. To finalize the process and receive your physical ID card:</p>
+      <div class="info-box">
+        <ul style="padding-left:20px; color:var(--text); font-size:0.95rem; line-height:1.8;">
+          <li>Save or screenshot the confirmation on the next page.</li>
+          <li>Visit the school administration office.</li>
+          <li>Provide your recent passport-sized photo.</li>
+          <li>Show your secure Registration QR Code.</li>
+        </ul>
+      </div>
+      <button class="btn-primary" id="btn-order-card">Order My Student Card & Finish <i class="fa-solid fa-flag-checkered"></i></button>
+    </div>
+
+    <!-- STEP 5: Success -->
+    <div class="step-content" id="step-5">
+      <div class="success-icon"><i class="fa-solid fa-certificate"></i></div>
+      <h2 class="step-title" style="margin-bottom:8px;">Registration Successful!</h2>
+      <p style="text-align:center; color:var(--text2); margin-bottom:24px;">Welcome back to Seden Adea.</p>
+      
+      <div class="info-box" style="border-color:var(--green);">
+        <div class="info-row"><span class="info-label">Student Name:</span><span class="info-value" id="success-name">---</span></div>
+        <div class="info-row"><span class="info-label">New Grade:</span><span class="info-value">Grade <span id="success-new-grade">---</span></span></div>
+        <hr style="border:0; border-top:1px dashed var(--border); margin:12px 0;">
+        <div class="info-row"><span class="info-label">Registration No:</span><span class="info-value" style="color:var(--blue); font-family:monospace; font-size:1.1rem;" id="success-reg-num">REG-2026-XXXX</span></div>
+        <div class="info-row"><span class="info-label">Queue Number:</span><span class="info-value" id="success-queue">XXXX</span></div>
+        <div class="info-row"><span class="info-label">Status:</span><span class="info-value" style="color:var(--green);">COMPLETED <i class="fa-solid fa-check"></i></span></div>
+      </div>
+      
+      <div class="qr-placeholder"><i class="fa-solid fa-qrcode" style="font-size:4rem; color:var(--text2);"></i></div>
+      <p style="text-align:center; color:var(--red); font-size:0.85rem; font-weight:600; margin-bottom:16px;"><i class="fa-solid fa-camera"></i> Please take a screenshot of this page.</p>
+      
+     
+    </div>
+
+  </div>
+
+  <script type="module" src="register.js"></script>
+</body>
+</html>
