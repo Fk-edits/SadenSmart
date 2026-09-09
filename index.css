@@ -104,7 +104,6 @@ nav .nav-links {
   align-items: center;
   gap: 8px;
   list-style: none;
-  /* FIX: allow wrapping and mobile toggle */
   flex-wrap: wrap;
 }
 nav .nav-links a {
@@ -338,7 +337,7 @@ section h2 {
   font-weight: 500;
   margin-top: 4px;
 }
-.floating-icons { display: none; } /* Removed clunky floating background icons for a cleaner look */
+.floating-icons { display: none; }
 
 /* ===== ABOUT ===== */
 .about-grid {
@@ -416,7 +415,7 @@ section h2 {
   width: 100% !important;
 }
 
-/* ===== TEACHER CARDS (Modernized & Cleaned) ===== */
+/* ===== TEACHER CARDS ===== */
 .staff-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -747,7 +746,47 @@ footer .copyright {
   visibility: visible;
 }
 
-/* ===== IFRAME OVERLAY ===== */
+/* ===== FULL-SCREEN APP OVERLAY (100% full screen) ===== */
+.app-fullscreen-view {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg);
+  z-index: 30000;
+  display: none;
+  flex-direction: column;
+}
+.app-fullscreen-view.active {
+  display: flex !important;
+}
+.app-topbar {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.btn-back-apps {
+  padding: 8px 16px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+.btn-back-apps:hover {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+
+/* ===== IFRAME OVERLAY (Reserved for AI Bot 80% Overlay) ===== */
 .iframe-overlay {
   position: fixed;
   inset: 0;
@@ -796,29 +835,30 @@ footer .copyright {
   background: var(--bg);
 }
 
-/* ===== FLOATING BOT ===== */
+/* ===== FLOATING BOT (Mobile friendly sizing & positioning) ===== */
 #floating-bot {
   position: fixed;
   bottom: 24px;
   right: 24px;
   z-index: 9998;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: var(--blue);
   color: #fff;
   border: none;
-  cursor: grab;
-  font-size: 1.2rem;
+  cursor: pointer;
+  font-size: 1.3rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   transition: transform 0.2s ease, opacity 0.3s ease;
   user-select: none;
+  touch-action: none;
 }
-#floating-bot:hover { transform: scale(1.05); }
-#floating-bot.hiding { opacity: 0.4; }
+#floating-bot:hover { transform: scale(1.08); }
+#floating-bot.hiding { opacity: 0.35; }
 #floating-bot.dragging { cursor: grabbing; opacity: 1; transform: scale(1.1); }
 
 /* ===== MODALS ===== */
@@ -885,7 +925,6 @@ footer .copyright {
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   nav { padding: 12px 16px; min-height: 56px; }
-  /* FIX: Show hamburger, hide nav-links by default */
   #hamburger-btn { display: inline-flex !important; }
   nav .nav-links {
     display: none;
@@ -911,4 +950,8 @@ footer .copyright {
   .timeline { padding-left: 24px; }
   .timeline::before { left: 6px; }
   .timeline-item .pin { left: -11px; width: 12px; height: 12px; top: 7px; }
+  
+  /* Mobile tweak for full app iframe header on small screens */
+  .app-topbar { padding: 10px 16px; }
+  .iframe-container { width: 95vw; height: 80vh; }
 }
