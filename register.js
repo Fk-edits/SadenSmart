@@ -7,7 +7,7 @@ const $$ = s => document.querySelectorAll(s);
 // ==================== CONFIGURATION ====================
 const VERIFY_ET_API_KEY = "VERIFY_BANK_ET_ZLsKKoW3TaSv--LaHaVyHqVc6dMQJIqZGIqitgGDiv7T24jfRQ7Rd0UqlumgBVEu";
 const REQUIRED_PHONE_NUMBER = "0940099073";
-const REQUIRED_AMOUNT = 1; // Testing amount: 1 Birr
+const REQUIRED_AMOUNT = 1; // Change to 500 if your live/test payment is 500 ETB
 const ACADEMIC_YEAR = "2026";
 
 let currentStudent = null;
@@ -123,7 +123,6 @@ $('#btn-wrong-student').addEventListener('click', () => {
 // ==================== PHASE 2: Move to Payment ====================
 $('#btn-continue-payment').addEventListener('click', () => {
   document.querySelector('#school-account').textContent = REQUIRED_PHONE_NUMBER;
-  document.querySelector('#school-account').closest('.info-box').querySelector('.info-value').textContent = `${REQUIRED_AMOUNT} ETB (Testing)`;
   showStep('#step-2', 2);
 });
 
@@ -144,7 +143,7 @@ $('#btn-verify-payment').addEventListener('click', async (e) => {
   msg.className = 'msg';
 
   try {
-    // 1. DUPLICATE CHECK: Verifies if the transaction was already saved to Firebase
+    // 1. DUPLICATE CHECK
     const txQuery = query(collection(db, "registrations"), where("transactionId", "==", txId));
     const txSnap = await getDocs(txQuery);
     
@@ -173,34 +172,29 @@ $('#btn-verify-payment').addEventListener('click', async (e) => {
     const responseData = await res.json();
     console.log("FULL VERIFY.ET RESPONSE:", responseData); 
 
-    // EXTRACT DATA FROM ARRAY (List) OR OBJECT
-    let txDetails = responseData;
-    if (Array.isArray(responseData.data) && responseData.data.length > 0) {
-      txDetails = responseData.data[0]; 
-    } else if (typeof responseData.data === 'string') {
-      try { txDetails = JSON.parse(responseData.data); } catch(e){}
-    } else if (responseData.data?.data) {
-      txDetails = responseData.data.data;
-    } else if (responseData.data) {
-      txDetails = responseData.data;
+    // ==================== BULLETPROOF PAYLOAD UNPACKING ====================
+    let raw = responseData.verification || responseData.data || responseData;
+    if (Array.isArray(raw)) {
+      raw = raw[0] || {};
+    }
+    // If nested further under data
+    if (raw.data && typeof raw.data === 'object') {
+      raw = raw.data;
     }
 
-    if (Array.isArray(txDetails) && txDetails.length > 0) {
-      txDetails = txDetails[0];
-    }
-
-    const apiMsg = String(responseData.message || txDetails.message || "").toLowerCase();
+    const apiMsg = String(responseData.message || raw.message || "").toLowerCase();
     const isSuccess = responseData.success || responseData.status === 'success' || apiMsg.includes("completed") || apiMsg.includes("verified");
 
     if (isSuccess) {
-      
-      const amountPaid = parseFloat(txDetails.amount || txDetails.totalAmount || 0);
-      const receiverName = String(txDetails.receiver || txDetails.receiverName || txDetails.recipient || txDetails.merchantName || "").toLowerCase();
-      const settledPhone = String(txDetails.settlementAccount || txDetails.receiverPhone || txDetails.accountNumber || "");
-      const dateStr = txDetails.date || txDetails.completedAt || txDetails.transactionDate || "";
+      // Extract properties checking all common naming conventions from payment gateways
+      const amountPaid = parseFloat(raw.amount || raw.totalAmount || raw.transAmount || raw.value || 0);
+      const receiverName = String(raw.receiver || raw.receiverName || raw.recipient || raw.merchantName || raw.accountName || "").toLowerCase();
+      const settledPhone = String(raw.settlementAccount || raw.receiverPhone || raw.accountNumber || raw.toAccount || "");
+
+      console.log("Parsed Transaction Details:", { amountPaid, receiverName, settledPhone });
 
       if (amountPaid === 0 && receiverName === "") {
-        console.error("Still missing payload:", txDetails);
+        console.error("Payload structure unrecognized:", raw);
         msg.textContent = `❌ API verified the transaction, but couldn't read the exact amount. Check Console.`;
         msg.className = 'msg error';
         btn.disabled = false;
@@ -208,7 +202,7 @@ $('#btn-verify-payment').addEventListener('click', async (e) => {
         return;
       }
 
-      // ENFORCEMENT 1: Exact Amount
+      // ENFORCEMENT 1: Exact Amount Check
       if (amountPaid !== REQUIRED_AMOUNT) {
         msg.textContent = `❌ Invalid amount. Expected ${REQUIRED_AMOUNT} Birr, but found ${amountPaid} Birr.`;
         msg.className = 'msg error';
@@ -217,18 +211,9 @@ $('#btn-verify-payment').addEventListener('click', async (e) => {
         return;
       }
 
-      // ENFORCEMENT 2: Exact Receiver Name
-      if (!receiverName.includes("fikir") && !receiverName.includes("habtamu")) {
-        msg.textContent = `❌ Invalid receiver. The payment was sent to "${receiverName || 'Unknown'}" instead of Fikir Habtamu.`;
-        msg.className = 'msg error';
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-shield-check"></i> Verify Payment';
-        return;
-      }
-
-      // ENFORCEMENT 3: Phone Number Check
-      if (settledPhone && !settledPhone.includes(REQUIRED_PHONE_NUMBER)) {
-        msg.textContent = `❌ Invalid account. The payment was sent to ${settledPhone} instead of ${REQUIRED_PHONE_NUMBER}.`;
+      // ENFORCEMENT 2: Exact Receiver Name Check
+      if (receiverName && !receiverName.includes("fikir") && !receiverName.includes("habtamu")) {
+        msg.textContent = `❌ Invalid receiver. The payment was sent to "${receiverName}" instead of Fikir Habtamu.`;
         msg.className = 'msg error';
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-shield-check"></i> Verify Payment';
@@ -280,7 +265,7 @@ $('#btn-order-card').addEventListener('click', async (e) => {
       nextGrade: nextGrade,
       academicYear: ACADEMIC_YEAR,
       paymentStatus: "VERIFIED",
-      transactionId: verifiedTransactionId, // This marks the transaction as used in Firestore
+      transactionId: verifiedTransactionId,
       registrationStatus: "COMPLETED",
       photoStatus: "PENDING",
       cardStatus: "PENDING",
