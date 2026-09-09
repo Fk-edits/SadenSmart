@@ -786,6 +786,31 @@ footer .copyright {
   border-color: var(--blue);
 }
 
+/* ===== ONBOARDING MODAL STYLING ===== */
+.onboarding-card input {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: 0.95rem;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.onboarding-card input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.onboarding-card input::placeholder {
+  color: var(--text2);
+  opacity: 0.7;
+}
+
 /* ===== IFRAME OVERLAY (Reserved for AI Bot 80% Overlay) ===== */
 .iframe-overlay {
   position: fixed;
