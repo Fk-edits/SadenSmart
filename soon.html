@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Seden Adea – Coming Soon</title>
+  <title>Seden Adea – Student Results</title>
 
   <script>
     (function(){
@@ -16,84 +16,286 @@
   <link rel="stylesheet" href="theme.css">
 
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: var(--bg); color: var(--text);
-      height: 100vh; display: flex; align-items: center; justify-content: center;
-      overflow: hidden; transition: background 0.3s ease, color 0.3s ease;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      transition: background 0.3s ease, color 0.3s ease;
       -webkit-font-smoothing: antialiased;
     }
+    .container { width: 100%; max-width: 500px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      box-shadow: var(--shadow);
+    }
+    .logo {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+      color: var(--text);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .logo i { color: var(--blue); font-size: 1.8rem; }
+    
+    .form-group { margin-bottom: 16px; }
+    label {
+      display: block; font-size: 0.85rem; color: var(--text2);
+      margin-bottom: 6px; font-weight: 500;
+    }
+    input {
+      width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--input-bg); color: var(--text); font-size: 0.95rem; outline: none;
+      transition: border-color 0.2s ease; font-family: inherit;
+    }
+    input:focus { border-color: var(--blue); }
 
-    .container { position: relative; text-align: center; padding: 24px; }
+    .btn-primary {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      background: var(--blue); color: #fff; font-weight: 600; font-size: 1rem;
+      cursor: pointer; transition: opacity 0.2s ease, transform 0.2s ease;
+      display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
-    /* Morphing Orb */
-    .orb { position: relative; width: 100px; height: 100px; margin: 0 auto 40px; }
-    .orb-core {
-      width: 100%; height: 100%; border-radius: 50%;
-      background: linear-gradient(135deg, var(--blue), var(--purple));
-      box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);
-      animation: morphOrb 4s ease-in-out infinite; position: absolute; top: 0; left: 0;
+    .result-card {
+      margin-top: 24px; padding: 24px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 12px;
+      border-top: 4px solid var(--blue);
+      animation: fadeIn 0.4s ease forwards;
     }
-    @keyframes morphOrb {
-      0%, 100% { border-radius: 50% 50% 50% 50%; transform: scale(1) rotate(0deg); }
-      25% { border-radius: 60% 40% 60% 40%; transform: scale(1.1) rotate(90deg); }
-      50% { border-radius: 40% 60% 40% 60%; transform: scale(1.05) rotate(180deg); }
-      75% { border-radius: 55% 45% 55% 45%; transform: scale(1.1) rotate(270deg); }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
+
+    .result-card h3 { color: var(--text); margin-bottom: 8px; font-size: 1.2rem; }
+    
+    .table-container { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; margin: 16px 0; }
+    table { width: 100%; border-collapse: collapse; text-align: left; background: var(--surface); }
+    th, td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th { background: var(--input-bg); color: var(--text2); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
+    tr:last-child td { border-bottom: none; }
+
+    .summary {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px; padding-top: 16px; margin-top: 16px;
+      border-top: 1px dashed var(--border); font-weight: 600; font-size: 0.95rem;
+    }
+    .rank-badge {
+      background: rgba(59, 130, 246, 0.1); color: var(--blue);
+      padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.2);
+      display: flex; align-items: center; gap: 6px; font-weight: 700;
     }
 
-    .orb-logo {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-size: 2rem; color: #fff; z-index: 2; animation: pulseText 2s ease-in-out infinite;
-    }
-    @keyframes pulseText { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.08); } }
+    .msg { font-size: 0.9rem; margin-top: 16px; padding: 12px; border-radius: 8px; display: none; font-weight: 500; text-align: center; }
+    .msg.error { display: block; background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2); }
+    .msg.success { display: block; background: rgba(16, 185, 129, 0.1); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.2); }
 
-    /* Progress bar */
-    .progress-track {
-      width: 240px; height: 4px; background: var(--border);
-      border-radius: 4px; margin: 0 auto 24px; overflow: hidden;
+    .loading-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 32px 0; color: var(--text2); gap: 12px;
     }
-    .progress-fill {
-      height: 100%; width: 0%; background: linear-gradient(90deg, var(--blue), var(--purple));
-      border-radius: 4px; animation: fillBar 2.5s ease-out forwards;
+    .spinner-ring {
+      width: 32px; height: 32px; border: 3px solid var(--border);
+      border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite;
     }
-    @keyframes fillBar { 0% { width: 0%; } 100% { width: 100%; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Text */
-    .coming-text {
-      font-size: 1.8rem; font-weight: 800; color: var(--text);
-      opacity: 0; animation: fadeInUp 0.8s ease 2.7s forwards; margin-bottom: 8px; letter-spacing: -0.5px;
-    }
-    .sub-text {
-      color: var(--text2); font-size: 0.95rem; opacity: 0; animation: fadeInUp 0.8s ease 3s forwards; margin-bottom: 30px;
-    }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-
-    .back-link { opacity: 0; animation: fadeInUp 0.8s ease 3.3s forwards; }
+    .back-link { text-align: center; margin-top: 24px; }
     .back-link a {
-      color: var(--text2); text-decoration: none; font-size: 0.9rem; font-weight: 500;
-      display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s ease;
+      color: var(--text2); text-decoration: none; font-size: 0.9rem;
+      display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s ease; font-weight: 500;
     }
-    .back-link a:hover { color: var(--blue); }
+    .back-link a:hover { color: var(--text); }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="orb">
-      <div class="orb-core"></div>
-      <div class="orb-logo"><i class="fa-solid fa-graduation-cap"></i></div>
-    </div>
+    <div class="card">
+      <div class="logo"><i class="fa-solid fa-chart-line"></i> Academic Results</div>
 
-    <div class="progress-track">
-      <div class="progress-fill"></div>
-    </div>
+      <form id="result-form">
+        <div class="form-group">
+          <label>Student ID Number</label>
+          <input type="text" id="student-id" placeholder="e.g. SASS-2026-0004" required>
+        </div>
+        <div class="form-group">
+          <label>Registered Full Name</label>
+          <input type="text" id="student-name" placeholder="Exact name on file" required>
+        </div>
+        <button type="submit" class="btn-primary" id="submit-btn">
+          <i class="fa-solid fa-magnifying-glass"></i> View Report Card
+        </button>
+      </form>
 
-    <h1 class="coming-text">Feature in Development</h1>
-    <p class="sub-text">We are preparing this tool for the upcoming semester.</p>
+      <div id="result-container"></div>
+      <p class="msg" id="error-msg"></p>
 
-    <div class="back-link">
-      <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Return Home</a>
+      <div class="back-link">
+        
+      </div>
     </div>
   </div>
+
+  <script type="module">
+    import { db } from './firebase-config.js';
+    import { collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+    const $ = s => document.querySelector(s);
+
+    const form = $('#result-form');
+    const studentIdInput = $('#student-id');
+    const studentNameInput = $('#student-name');
+    const submitBtn = $('#submit-btn');
+    const resultContainer = $('#result-container');
+    const errorMsg = $('#error-msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const studentId = studentIdInput.value.trim();
+      const studentName = studentNameInput.value.trim().toLowerCase();
+      errorMsg.className = 'msg';
+
+      if (!studentId || !studentName) {
+        errorMsg.textContent = 'Please fill in both fields.';
+        errorMsg.className = 'msg error';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Locating Records...';
+      errorMsg.textContent = '';
+      resultContainer.innerHTML = '<div class="loading-state"><div class="spinner-ring"></div><p>Calculating rankings...</p></div>';
+
+      try {
+        const studentQuery = query(collection(db, "students"), where("studentId", "==", studentId));
+        const studentSnap = await getDocs(studentQuery);
+
+        if (studentSnap.empty) {
+          throw new Error('Student ID not found in the system.');
+        }
+
+        const studentData = studentSnap.docs[0].data();
+
+        if (studentData.name.toLowerCase() !== studentName) {
+          throw new Error('The name does not match the provided ID. Verify spelling.');
+        }
+
+        const grade = studentData.grade;
+        const section = studentData.section;
+        if (!grade || !section) {
+          throw new Error('Your class assignment is missing. Contact administration.');
+        }
+
+        const myMarksQuery = query(collection(db, "marks"), where("studentId", "==", studentId));
+        const myMarksSnap = await getDocs(myMarksQuery);
+
+        if (myMarksSnap.empty) {
+          resultContainer.innerHTML = `
+            <div class="result-card">
+              <h3>${studentData.name}</h3>
+              <p style="color:var(--text2); margin-top:8px;">Class: Grade ${grade}${section}</p>
+              <p style="color:var(--text); margin-top:16px; background:var(--input-bg); padding:12px; border-radius:8px;">No marks have been published for you yet.</p>
+            </div>
+          `;
+          resetButton();
+          return;
+        }
+
+        let myTotal = 0, myCount = 0;
+        let myTableRows = '';
+        myMarksSnap.forEach(doc => {
+          const mark = doc.data();
+          myTableRows += `<tr><td>${mark.subject}</td><td style="font-weight:600;">${mark.score}</td></tr>`;
+          myTotal += mark.score;
+          myCount++;
+        });
+        const myAvg = myTotal / myCount;
+
+        // Fetch all students in the same class to determine rank
+        const classStudentsQuery = query(collection(db, "students"), where("grade", "==", grade), where("section", "==", section));
+        const classStudentsSnap = await getDocs(classStudentsQuery);
+        const studentIds = [];
+        classStudentsSnap.forEach(doc => studentIds.push(doc.data().studentId || doc.id));
+
+        // Efficient chunked IN query
+        async function fetchMarksForStudents(ids) {
+          const marksList = [];
+          for (let i = 0; i < ids.length; i += 10) {
+            const chunk = ids.slice(i, i + 10);
+            const q = query(collection(db, "marks"), where("studentId", "in", chunk));
+            const snap = await getDocs(q);
+            snap.forEach(doc => marksList.push(doc.data()));
+          }
+          return marksList;
+        }
+
+        const allMarksData = await fetchMarksForStudents(studentIds);
+
+        const averages = {}; 
+        allMarksData.forEach(m => {
+          if (!averages[m.studentId]) averages[m.studentId] = { total: 0, count: 0 };
+          averages[m.studentId].total += m.score;
+          averages[m.studentId].count++;
+        });
+
+        const studentAvgs = [];
+        for (const sid of studentIds) {
+          if (averages[sid] && averages[sid].count > 0) {
+            studentAvgs.push({ studentId: sid, avg: averages[sid].total / averages[sid].count });
+          }
+        }
+
+        studentAvgs.sort((a, b) => b.avg - a.avg);
+
+        let rank = 1, prevAvg = null, rankDisplay = null;
+        for (let i = 0; i < studentAvgs.length; i++) {
+          const entry = studentAvgs[i];
+          if (prevAvg !== null && entry.avg < prevAvg) rank = i + 1;
+          if (entry.studentId === studentId) { rankDisplay = rank; break; }
+          prevAvg = entry.avg;
+        }
+
+        const rankText = rankDisplay ? `${rankDisplay} / ${studentAvgs.length}` : 'N/A';
+
+        resultContainer.innerHTML = `
+          <div class="result-card">
+            <h3>${studentData.name}</h3>
+            <p style="color:var(--text2); font-size:0.9rem;">ID: <span style="font-family:monospace; color:var(--text);">${studentId}</span> | Class: Grade ${grade}${section}</p>
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Subject</th><th>Score (100)</th></tr></thead>
+                <tbody>${myTableRows}</tbody>
+              </table>
+            </div>
+            <div class="summary">
+              <div><span style="color:var(--text2); font-size:0.8rem; display:block;">Total Points</span>${myTotal}</div>
+              <div><span style="color:var(--text2); font-size:0.8rem; display:block;">Average</span>${myAvg.toFixed(1)}%</div>
+              <div class="rank-badge"><i class="fa-solid fa-trophy"></i> Rank: ${rankText}</div>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        errorMsg.textContent = err.message;
+        errorMsg.className = 'msg error';
+        resultContainer.innerHTML = '';
+      } finally {
+        resetButton();
+      }
+    });
+
+    function resetButton() {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> View Report Card';
+    }
+  </script>
 </body>
 </html>
