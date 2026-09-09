@@ -5,14 +5,14 @@ import { collection, getDocs, query, where } from 'https://www.gstatic.com/fireb
 // ==================== DATA ====================
 const appsData = [
   { id: 'a1', title: 'Leave Request', icon: 'fa-clipboard-check', category: 'tools', file: 'permission.html' },
-  { id: 'a2', title: 'AI Assistant', icon: 'fa-brain', category: 'tools', file: 'ai.html' },
+  { id: 'a2', title: 'Student Registration', icon: 'fa-id-card', category: 'tools', file: 'rigister.html' },
   { id: 'a3', title: 'School Chat', icon: 'fa-comments', category: 'tools', file: 'chat.html' },
   { id: 'a4', title: 'Announcements', icon: 'fa-newspaper', category: 'tools', file: 'news.html' },
   { id: 'a7', title: 'My Results', icon: 'fa-chart-line', category: 'tools', file: 'results.html' },
-  { id: 'a9', title: 'Science Lab', icon: 'fa-flask', category: 'learning', file: 'soon.html' },
-  { id: 'a10', title: 'Quizzes', icon: 'fa-pen-to-square', category: 'learning', file: 'soon.html' },
+  { id: 'a10', title: 'Quizzes (soon)', icon: 'fa-pen-to-square', category: 'learning', file: 'soon.html' },
   { id: 'a11', title: 'Games', icon: 'fa-gamepad', category: 'fun', file: 'game.html' },
-  { id: 'a8', title: 'Developer Info', icon: 'fa-code', category: 'learning', file: 'dev.html' }
+  { id: 'a8', title: 'Developer Info', icon: 'fa-code', category: 'learning', file: 'dev.html' },
+  { id: 'a12', title: '12HUB (soon)', icon: 'fa-book-open-reader', category: 'learning', file: 'soon.html' }
 ];
 
 const staffData = [
@@ -121,7 +121,6 @@ const translations = {
   }
 };
 
-// ==================== GLOBAL STATE ====================
 let currentLang = localStorage.getItem('sass_lang') || 'en';
 let theme = localStorage.getItem('sass_theme') || 'dark';
 let favorites = JSON.parse(localStorage.getItem('sass_favorites') || '[]');
@@ -133,9 +132,8 @@ let pIdx = 0, cIdx = 0, deleting = false;
 let botHideTimer, botDragOffset, botWasDragged, botStartPos;
 let botX = window.innerWidth - 70, botY = window.innerHeight - 120;
 let mapZoom = 1;
-let statsChart = null; // FIX: store chart instance for re-creation
+let statsChart = null;
 
-// ==================== FUNCTIONS ====================
 function applyLanguage(lang) {
   currentLang = lang;
   localStorage.setItem('sass_lang', lang);
@@ -157,7 +155,6 @@ function applyTheme(t) {
   const icon = document.querySelector('#theme-toggle i');
   if (icon) icon.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
   localStorage.setItem('sass_theme', t);
-  // FIX: Re-create chart with new colors
   initSchoolStatsChart();
 }
 
@@ -196,7 +193,6 @@ function restartTyping() {
   typeLoop();
 }
 
-// Optimized Firebase User Profile Fetching (Concurrent requests)
 async function fetchUserProfile(uid) {
   const cols = ['admins', 'teachers', 'students'];
   try {
@@ -209,7 +205,7 @@ async function fetchUserProfile(uid) {
         return {
           name: data.name || data.displayName || '',
           email: currentUser?.email || data.email || '',
-          role: cols[i].slice(0, -1), // Convert 'admins' -> 'admin'
+          role: cols[i].slice(0, -1),
           docId: results[i].value.docs[0].id,
           collection: cols[i],
           subject: data.subject || '',
@@ -219,7 +215,6 @@ async function fetchUserProfile(uid) {
     }
   } catch (e) {
     console.error('Error fetching profile:', e);
-    showToast('Failed to load profile data.');
   }
   return null;
 }
@@ -286,8 +281,7 @@ if (logoutBtn) logoutBtn.addEventListener('click', async () => {
   closeSidebar();
 });
 
-// Sidebar
-async function openSidebar() {
+function openSidebar() {
   const sidebar = $('#profile-sidebar');
   if (sidebar) sidebar.classList.add('open');
   const overlay = $('#sidebar-overlay');
@@ -375,7 +369,7 @@ function renderStaff() {
   staffData.forEach((s) => {
     const card = document.createElement('div');
     card.className = 'teacher-card';
-    card.innerHTML = `<div class="image-zone"><img class="teacher-img" src="${s.img}" alt="${s.name}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23eee%22/%3E%3Ctext x=%2250%22 y=%2255%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%23999%22%3E👤%3C/text%3E%3C/svg%3E';"> </div><h3 class="teacher-name">${s.name}</h3><span class="teacher-role ${s.role}">${s.roleLabel}</span><div class="teacher-subject">${s.subject}</div>`;
+    card.innerHTML = `<div class="image-zone"><img class="teacher-img" src="${s.img}" alt="${s.name}" loading="lazy"></div><h3 class="teacher-name">${s.name}</h3><span class="teacher-role ${s.role}">${s.roleLabel}</span><div class="teacher-subject">${s.subject}</div>`;
     card.onclick = () => openStaffModal(s);
     grid.appendChild(card);
   });
@@ -384,7 +378,7 @@ function renderStaff() {
 function openStaffModal(s) {
   const content = $('#staff-modal-content');
   if (!content) return;
-  content.innerHTML = `<img src="${s.img}" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid var(--border);margin-bottom:12px;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2296%22 height=%2296%22%3E%3Crect width=%2296%22 height=%2296%22 fill=%22%23eee%22/%3E%3Ctext x=%2248%22 y=%2252%22 font-size=%2224%22 text-anchor=%22middle%22 fill=%22%23999%22%3E👤%3C/text%3E%3C/svg%3E'"><h3>${s.name}</h3><span class="teacher-role ${s.role}" style="display:inline-block;margin:8px 0;">${s.roleLabel}</span><p style="color:var(--text2);margin-bottom:8px;">${s.subject}</p><p style="font-size:0.95rem;">${s.bio}</p>`;
+  content.innerHTML = `<img src="${s.img}" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid var(--border);margin-bottom:12px;"><h3>${s.name}</h3><span class="teacher-role ${s.role}" style="display:inline-block;margin:8px 0;">${s.roleLabel}</span><p style="color:var(--text2);margin-bottom:8px;">${s.subject}</p><p style="font-size:0.95rem;">${s.bio}</p>`;
   openModal('staff-modal');
 }
 
@@ -462,14 +456,27 @@ function renderAllApps() {
   filtered.forEach(a => grid.appendChild(createAppCard(a)));
 }
 
+// Opens apps in the 100% Full-Screen App Overlay
 function openAppIframe(app) {
-  const titleEl = $('#iframe-title');
+  const titleEl = $('#full-app-title');
   if (titleEl) titleEl.textContent = app.title;
-  const iframe = $('#iframe-content');
+  const iframe = $('#full-app-iframe');
   if (iframe) iframe.src = app.file;
-  const overlay = $('#iframe-overlay');
+  const overlay = $('#app-fullscreen-view');
   if (overlay) overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
+}
+
+// Back button handler for the full-screen view container
+const btnBackApps = $('#btn-back-apps');
+if (btnBackApps) {
+  btnBackApps.onclick = () => {
+    const overlay = $('#app-fullscreen-view');
+    if (overlay) overlay.classList.remove('active');
+    const iframe = $('#full-app-iframe');
+    if (iframe) iframe.src = '';
+    document.body.style.overflow = '';
+  };
 }
 
 function renderFavList() {
@@ -527,7 +534,7 @@ window.closeModal = id => {
 };
 $$('.modal-overlay').forEach(m => m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); }));
 
-// ==================== FLOATING BOT ====================
+// ==================== FLOATING BOT (Mobile touch support + 80% overlay) ====================
 const bot = $('#floating-bot');
 function positionBot() {
   if (!bot) return;
@@ -542,7 +549,7 @@ function hideBotToEdge() {
   const w = window.innerWidth;
   const distLeft = rect.left;
   const distRight = w - rect.right;
-  let tx = (distLeft < distRight) ? -rect.left - 20 : w - rect.right + 20;
+  let tx = (distLeft < distRight) ? -rect.left - 15 : w - rect.right + 15;
   bot.style.transform = `translate(${tx}px, 0)`;
   bot.classList.add('hiding');
 }
@@ -551,28 +558,29 @@ function resetBot() {
   bot.classList.remove('hiding');
   bot.style.transform = '';
   clearTimeout(botHideTimer);
-  botHideTimer = setTimeout(hideBotToEdge, 4000);
+  botHideTimer = setTimeout(hideBotToEdge, 5000);
 }
+
 if (bot) {
-  bot.addEventListener('mousedown', e => {
-    if (e.button !== 0) return;
+  const startDrag = (clientX, clientY) => {
     botWasDragged = false;
-    botStartPos = { x: e.clientX, y: e.clientY };
+    botStartPos = { x: clientX, y: clientY };
     const rect = bot.getBoundingClientRect();
-    botDragOffset = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    botDragOffset = { x: clientX - rect.left, y: clientY - rect.top };
     bot.classList.add('dragging');
     resetBot();
-    e.preventDefault();
-  });
-  document.addEventListener('mousemove', e => {
+  };
+
+  const moveDrag = (clientX, clientY) => {
     if (!bot.classList.contains('dragging')) return;
-    if (Math.abs(e.clientX - botStartPos.x) > 3 || Math.abs(e.clientY - botStartPos.y) > 3) botWasDragged = true;
-    botX = Math.max(0, Math.min(window.innerWidth - 50, e.clientX - botDragOffset.x));
-    botY = Math.max(0, Math.min(window.innerHeight - 50, e.clientY - botDragOffset.y));
+    if (Math.abs(clientX - botStartPos.x) > 3 || Math.abs(clientY - botStartPos.y) > 3) botWasDragged = true;
+    botX = Math.max(0, Math.min(window.innerWidth - 55, clientX - botDragOffset.x));
+    botY = Math.max(0, Math.min(window.innerHeight - 55, clientY - botDragOffset.y));
     positionBot();
     resetBot();
-  });
-  document.addEventListener('mouseup', () => {
+  };
+
+  const endDrag = () => {
     if (bot.classList.contains('dragging')) {
       bot.classList.remove('dragging');
       if (!botWasDragged) {
@@ -586,12 +594,27 @@ if (bot) {
       }
       resetBot();
     }
-  });
+  };
+
+  // Mouse events
+  bot.addEventListener('mousedown', e => { if (e.button === 0) startDrag(e.clientX, e.clientY); });
+  document.addEventListener('mousemove', e => moveDrag(e.clientX, e.clientY));
+  document.addEventListener('mouseup', endDrag);
+
+  // Touch events for Mobile
+  bot.addEventListener('touchstart', e => {
+    if (e.touches.length === 1) startDrag(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    if (e.touches.length === 1) moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+  document.addEventListener('touchend', endDrag);
+
   positionBot();
   resetBot();
   window.addEventListener('resize', () => {
-    botX = Math.min(botX, window.innerWidth - 50);
-    botY = Math.min(botY, window.innerHeight - 50);
+    botX = Math.min(botX, window.innerWidth - 55);
+    botY = Math.min(botY, window.innerHeight - 55);
     positionBot();
   });
 }
@@ -600,7 +623,6 @@ function initSchoolStatsChart() {
   const canvas = $('#school-stats-chart');
   if (!canvas) return;
 
-  // Destroy existing chart if any
   if (statsChart) {
     statsChart.destroy();
     statsChart = null;
@@ -645,14 +667,12 @@ if (sidebarThemeToggle) sidebarThemeToggle.onclick = () => { theme = theme === '
 const langSelect = $('#lang-select');
 if (langSelect) langSelect.addEventListener('change', (e) => applyLanguage(e.target.value));
 
-// ===== HAMBURGER MENU =====
 const hamburgerBtn = $('#hamburger-btn');
 const navLinks = $('#nav-links');
 if (hamburgerBtn && navLinks) {
   hamburgerBtn.addEventListener('click', () => {
     navLinks.classList.toggle('open');
   });
-  // Close menu when a link is clicked
   navLinks.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
       navLinks.classList.remove('open');
@@ -660,7 +680,6 @@ if (hamburgerBtn && navLinks) {
   });
 }
 
-// Scroll progress bar + Navbar blur on scroll
 window.addEventListener('scroll', () => {
   const progressBar = document.querySelector('.scroll-progress');
   if (progressBar) {
