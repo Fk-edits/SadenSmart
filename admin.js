@@ -69,6 +69,7 @@ function showSection(section) {
     case 'statistics': loadStatistics(); break;
     case 'teachers': loadTeachersSection(); break;
     case 'students': loadStudentsSection(); break;
+    case 'registrations': loadRegistrationsSection(); break; // NEW TAB ROUTE
     case 'groups': loadGroupsSection(); break;
     case 'subjects': loadSubjectsSection(); break;
     case 'announcements': loadAnnouncementsSection(); break;
@@ -433,6 +434,93 @@ async function loadStudentsSection() {
     
     await refresh();
   } catch (err) { console.error(err); }
+}
+
+// ==================== NEW: REGISTRATIONS ====================
+async function loadRegistrationsSection() {
+  $('#admin-main').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+      <h2 class="section-title" style="margin:0;"><i class="fa-solid fa-id-card"></i> Registrations & Card Orders</h2>
+      <button class="btn-primary" id="btn-refresh-regs"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+    </div>
+    <div class="card table-container" style="padding:0;">
+      <table>
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Name</th>
+            <th>New Grade</th>
+            <th>Payment</th>
+            <th>Card Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="registrations-tbody">
+          <tr><td colspan="6" style="text-align:center;"><div class="spinner-ring" style="margin:20px auto;"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const refreshRegs = async () => {
+    const tbody = $('#registrations-tbody');
+    try {
+      const q = query(collection(db, "registrations"), orderBy("timestamp", "desc"));
+      const snap = await getDocs(q);
+      
+      if (snap.empty) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text2);">No registrations found for this year.</td></tr>';
+        return;
+      }
+
+      let rows = '';
+      snap.forEach(documentSnapshot => {
+        const data = documentSnapshot.data();
+        
+        const payBadge = `<span style="background: rgba(16,185,129,0.1); color: var(--green); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;"><i class="fa-solid fa-check"></i> ${data.paymentStatus}</span>`;
+        let cardBadge, actionBtn;
+
+        if (data.cardStatus === 'PENDING') {
+          cardBadge = `<span style="background: rgba(245,158,11,0.1); color: #f59e0b; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;"><i class="fa-solid fa-clock"></i> PENDING</span>`;
+          actionBtn = `<button class="action-btn btn-view btn-approve-card" data-id="${documentSnapshot.id}"><i class="fa-solid fa-print"></i> Mark Printed</button>`;
+        } else {
+          cardBadge = `<span style="background: rgba(16,185,129,0.1); color: var(--green); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;"><i class="fa-solid fa-check-double"></i> ISSUED</span>`;
+          actionBtn = `<span style="color: var(--text2); font-size: 0.8rem; font-weight:600;"><i class="fa-solid fa-check"></i> Completed</span>`;
+        }
+
+        rows += `<tr>
+          <td style="font-family: monospace; font-weight:600;">${data.studentId}</td>
+          <td style="font-weight: 600;">${data.name}</td>
+          <td>Grade ${data.nextGrade} ${data.previousSection}</td>
+          <td>${payBadge}</td>
+          <td>${cardBadge}</td>
+          <td>${actionBtn}</td>
+        </tr>`;
+      });
+      tbody.innerHTML = rows;
+
+      document.querySelectorAll('.btn-approve-card').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.target.closest('.btn-approve-card').dataset.id;
+          if(confirm("Mark this student's ID card as Printed/Issued?")) {
+            await updateDoc(doc(db, "registrations", id), { cardStatus: "ISSUED" });
+            refreshRegs();
+          }
+        });
+      });
+
+    } catch (error) {
+      console.error(error);
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--red);">Error loading data.</td></tr>';
+    }
+  };
+
+  await refreshRegs();
+
+  $('#btn-refresh-regs').addEventListener('click', () => {
+    $('#registrations-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;"><div class="spinner-ring" style="margin:20px auto;"></div></td></tr>';
+    refreshRegs();
+  });
 }
 
 // ==================== SUBJECTS ====================
@@ -1138,15 +1226,13 @@ async function loadSettingsSection() {
     </div>
   `;
 
-  // Load current API key
   try {
     const docSnap = await getDoc(doc(db, "settings", "api_keys"));
     if (docSnap.exists()) {
-      $('#gemini-key').value = docSnap.data().gemini || snap.data().openrouter || '';
+      $('#gemini-key').value = docSnap.data().gemini || docSnap.data().openrouter || '';
     }
   } catch (e) { console.error(e); }
 
-  // Save API key
   $('#save-api-key-btn').addEventListener('click', async (e) => {
     const key = $('#gemini-key').value.trim();
     const msg = $('#api-key-msg');
@@ -1165,7 +1251,6 @@ async function loadSettingsSection() {
     }
   });
 
-  // Change password
   $('#change-password-btn').addEventListener('click', async (e) => {
     const newPass = $('#new-password').value.trim();
     const msg = $('#password-msg');
@@ -1185,12 +1270,12 @@ async function loadSettingsSection() {
     }
   });
 
-  // Danger Zone
+  // Danger Zone - Added 'registrations' to collections array
   $('#reset-firestore-btn').addEventListener('click', async (e) => {
-    const confirmMsg = "CRITICAL WARNING:\n\nYou are about to DELETE ALL students, teachers, marks, classes, and settings from the database.\n\nType 'CONFIRM' to proceed.";
+    const confirmMsg = "CRITICAL WARNING:\n\nYou are about to DELETE ALL students, teachers, marks, classes, registrations, and settings from the database.\n\nType 'CONFIRM' to proceed.";
     if (prompt(confirmMsg) !== 'CONFIRM') return;
 
-    const collections = ['teachers', 'students', 'groups', 'marks', 'announcements', 'permissions', 'subjects', 'chat', 'ai_chats', 'settings'];
+    const collections = ['teachers', 'students', 'groups', 'marks', 'announcements', 'permissions', 'subjects', 'chat', 'ai_chats', 'settings', 'registrations']; // NEW
     const msg = $('#reset-msg');
     
     e.target.disabled = true;
