@@ -47,7 +47,6 @@
       <li><a onclick="scrollToSection('apps-section')" data-i18n="nav_apps">Apps</a></li>
     </ul>
     <div class="nav-actions">
-      <!-- FIX: Hamburger button for mobile -->
       <button id="hamburger-btn" aria-label="Toggle navigation" style="display:none; background:none; border:none; color:var(--text); font-size:1.4rem; cursor:pointer;">
         <i class="fa-solid fa-bars"></i>
       </button>
@@ -185,7 +184,18 @@
     <button id="logout-btn" style="padding:9px 14px;border-radius:12px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;font-weight:500;margin-top:8px;" data-i18n="logout">Logout</button>
   </div>
 
-  <!-- Iframe Overlay -->
+  <!-- 100% Full-Screen App Overlay -->
+  <div class="app-fullscreen-view" id="app-fullscreen-view">
+    <div class="app-topbar">
+      <button class="btn-back-apps" id="btn-back-apps">
+        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+      </button>
+      <span id="full-app-title" style="margin-left:16px; font-weight:600;">App</span>
+    </div>
+    <iframe id="full-app-iframe" style="flex:1; width:100%; border:none; background:var(--bg);" title="Full App Frame"></iframe>
+  </div>
+
+  <!-- Iframe Overlay (80% for AI Bot) -->
   <div class="iframe-overlay" id="iframe-overlay">
     <div class="iframe-container">
       <div class="iframe-header"><span id="iframe-title">App</span><button class="iframe-close" id="iframe-close-btn"><i class="fa-solid fa-xmark"></i></button></div>
